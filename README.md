@@ -4,9 +4,9 @@ Repositorio educativo del curso de **Diseño de Experimentos** de maestría — 
 distribuidas en 4 fines de semana (~10 h cada uno). Material en español, con teoría en
 `.md` (LaTeX) y notebooks ejecutables en **R** y **Python**.
 
-> ⚠️ **Estado:** repositorio en construcción por fases. El contenido de los módulos se
-> irá completando sesión a sesión. El plan de construcción y el seguimiento de tareas se
-> llevan en Notion (ver _Cómo retomar_ más abajo).
+> ✅ **Estado:** contenido completo. Las cuatro semanas (teoría + notebooks R/Python +
+> datos + ejercicios), el proyecto integrador y los recursos generales están construidos y
+> verificados. El plan y el seguimiento de tareas se llevan en Notion (ver _Cómo retomar_).
 
 ## 📚 Programa
 
