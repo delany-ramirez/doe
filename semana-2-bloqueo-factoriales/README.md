@@ -1,6 +1,6 @@
 # Semana 2 — Bloqueo y factoriales (10 h)
 
-> ✅ **Teoría completa** (Fase 3). 🚧 Notebooks, datos y ejercicios pendientes (Fase 4).
+> ✅ **Semana completa:** teoría (Fase 3) + notebooks, datos y ejercicios (Fase 4).
 
 ## Objetivos
 
@@ -29,10 +29,28 @@ distinguiendo efectos principales de interacciones.
 | 03 | [`teoria/03-anova-dos-vias.md`](teoria/03-anova-dos-vias.md) | Factorial de dos factores y ANOVA de dos vías |
 | 04 🔵 | [`teoria/04-cuadrados-latinos-bibd.md`](teoria/04-cuadrados-latinos-bibd.md) | Opcional: cuadrados latinos, BIBD y efectos aleatorios/mixtos |
 
-### Otros materiales
+### Notebooks ✅ (doble versión R + Python)
 
-| Tipo | Ruta | Estado |
-|------|------|--------|
-| Notebooks (R/Py) | [`notebooks/`](notebooks/) | 🚧 pendiente (Fase 4) |
-| Datos | [`datos/`](datos/) | 🚧 pendiente (Fase 4) |
-| Ejercicios | [`ejercicios/`](ejercicios/) | 🚧 pendiente (Fase 4) |
+| # | Notebook | Contenido |
+|---|----------|-----------|
+| 01 | `notebooks/01-dbca_{py\|r}.ipynb` | DBCA, supuestos y eficiencia del bloqueo |
+| 02 | `notebooks/02-factorial-dos-vias_{py\|r}.ipynb` | Factorial 2 factores, interacción y ANOVA de dos vías |
+
+### Datos ✅
+
+| Archivo | Descripción | Variables |
+|---------|-------------|-----------|
+| [`datos/rendimiento-extrusion.csv`](datos/rendimiento-extrusion.csv) | DBCA: rendimiento de extrusión por presión (trat.) y lote (bloque); Montgomery 4.1 | `presion`, `lote`, `rendimiento` |
+| [`datos/vida-bateria.csv`](datos/vida-bateria.csv) | Factorial 3×3: vida de batería por material y temperatura; Montgomery 5.3 | `material`, `temperatura`, `vida` |
+| [`datos/rendimiento-fertilizante.csv`](datos/rendimiento-fertilizante.csv) | DBCA del ejercicio 01 (fertilizante × parcela) | `fertilizante`, `parcela`, `rendimiento` |
+| [`datos/conversion-catalizador.csv`](datos/conversion-catalizador.csv) | Factorial 2×3 del ejercicio 02 (catalizador × concentración) | `catalizador`, `concentracion`, `conversion` |
+
+### Ejercicios ✅
+
+| # | Enunciado | Solución |
+|---|-----------|----------|
+| 01 | [`ejercicios/ej01-dbca.md`](ejercicios/ej01-dbca.md) | [`ej01-dbca-sol.md`](ejercicios/ej01-dbca-sol.md) |
+| 02 | [`ejercicios/ej02-factorial.md`](ejercicios/ej02-factorial.md) | [`ej02-factorial-sol.md`](ejercicios/ej02-factorial-sol.md) |
+
+> Notebooks ejecutables de principio a fin con [`environment.yml`](../environment.yml);
+> versiones Python y R equivalentes.
