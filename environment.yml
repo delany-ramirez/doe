@@ -1,0 +1,33 @@
+# Entorno conda con doble kernel (Python + R) para el curso DOE.
+# Crear con:    conda env create -f environment.yml
+# Activar con:  conda activate doe
+# Tras activar, registrar el kernel de R:  Rscript -e "IRkernel::installspec()"
+
+name: doe
+channels:
+  - conda-forge
+dependencies:
+  # --- Python ---
+  - python=3.11
+  - numpy>=1.26
+  - pandas>=2.2
+  - scipy>=1.13
+  - statsmodels>=0.14
+  - pingouin>=0.5
+  - matplotlib>=3.8
+  - seaborn>=0.13
+  - jupyterlab>=4.2
+  - ipykernel>=6.29
+  - pip
+  - pip:
+      - pyDOE3>=1.0
+
+  # --- R + kernel + paquetes para DOE ---
+  - r-base>=4.3
+  - r-irkernel
+  - r-tidyverse
+  - r-car          # Anova(), pruebas de supuestos
+  - r-emmeans      # comparaciones múltiples (Tukey, Dunnett)
+  - r-multcomp     # contrastes y comparaciones múltiples
+  - r-factominer  # análisis multivariante (opcional)
+  - r-rsm          # metodología de superficie de respuesta

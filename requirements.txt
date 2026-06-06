@@ -1,0 +1,20 @@
+# Stack Python para el curso de Diseño de Experimentos (DOE)
+# Instalar con:  pip install -r requirements.txt
+
+# --- Núcleo numérico / datos ---
+numpy>=1.26
+pandas>=2.2
+scipy>=1.13
+
+# --- Estadística y DOE ---
+statsmodels>=0.14        # ANOVA, OLS, modelos lineales, comparaciones
+pingouin>=0.5            # ANOVA, post-hoc (Tukey), tamaño de efecto, potencia
+pyDOE3>=1.0              # generación de diseños factoriales, fraccionados, CCD/BBD
+
+# --- Visualización ---
+matplotlib>=3.8
+seaborn>=0.13
+
+# --- Notebooks ---
+jupyterlab>=4.2
+ipykernel>=6.29
