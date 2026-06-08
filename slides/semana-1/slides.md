@@ -201,6 +201,8 @@ background: '#1a365d'
 - **Potencia** $= 1 - \beta$: probabilidad de detectar un efecto real → **queremos maximizarla**
 
 ---
+layout: two-cols
+---
 
 # Potencia y Tamaño de Muestra
 
@@ -212,6 +214,8 @@ Con más réplicas $n$:
 - Mayor precisión de las estimaciones
 - Mayor **potencia** para detectar diferencias
 
+::right::
+
 ### Para calcular $n$
 
 Se necesita especificar:
@@ -220,7 +224,8 @@ Se necesita especificar:
 3. Diferencia mínima detectable $\delta$
 4. Estimación de $\sigma$ (piloto o literatura)
 
-> En R: `power.anova.test()` · En Python: `statsmodels.stats.power`
+> En R: `power.anova.test()`
+> En Python: `statsmodels.stats.power`
 
 ---
 layout: cover
@@ -240,7 +245,7 @@ Tenemos **un factor** con $a$ niveles y $n$ réplicas por nivel. Total: $N = an$
 
 Con $a=5$ tratamientos hay $\binom{5}{2}=10$ parejas. Tomando $\alpha_{PC}=0.05$:
 
-$$\alpha_{EF} = 1 - (1-0.05)^{10} \approx 0.40 \quad \text{¡40% de falsa alarma!}$$
+$$\alpha_{EF} = 1 - (1-0.05)^{10} \approx 0.40 \quad \text{¡40\% de falsa alarma!}$$
 
 El **ANOVA** responde con una **sola prueba global**:
 
