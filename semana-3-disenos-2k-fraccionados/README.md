@@ -50,4 +50,14 @@ bloqueo con confusión y fracciones para screening de muchos factores.
 | 01 | [`ejercicios/ej01-factorial-2k.md`](ejercicios/ej01-factorial-2k.md) | [`ej01-factorial-2k-sol.md`](ejercicios/ej01-factorial-2k-sol.md) |
 | 02 | [`ejercicios/ej02-fraccionado.md`](ejercicios/ej02-fraccionado.md) | [`ej02-fraccionado-sol.md`](ejercicios/ej02-fraccionado-sol.md) |
 
+### Taller ✅
+
+| Enunciado | Solución | Duración |
+|-----------|----------|----------|
+| [`ejercicios/taller-semana-3.md`](ejercicios/taller-semana-3.md) | [`taller-semana-3-sol.md`](ejercicios/taller-semana-3-sol.md) | 90 min |
+
+Taller integrador con el dataset $2^4$ de filtración (Montgomery 6.2): estructura del
+diseño, estimación de los 15 efectos, gráfico de probabilidad normal, modelo reducido,
+predicción del máximo y diseño fraccionado $2^{4-1}$ (generador, alias y resolución).
+
 > Notebooks ejecutables con [`environment.yml`](../environment.yml); versiones Python y R equivalentes.

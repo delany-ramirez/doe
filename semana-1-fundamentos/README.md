@@ -52,5 +52,15 @@ factor, analizarlo con ANOVA de una vía, verificar sus supuestos y comparar tra
 | 01 | [`ejercicios/ej01-anova.md`](ejercicios/ej01-anova.md) | [`ej01-anova-sol.md`](ejercicios/ej01-anova-sol.md) |
 | 02 🔵 | [`ejercicios/ej02-no-parametricas.md`](ejercicios/ej02-no-parametricas.md) | [`ej02-no-parametricas-sol.md`](ejercicios/ej02-no-parametricas-sol.md) |
 
+### Taller ✅
+
+| Enunciado | Solución | Duración |
+|-----------|----------|----------|
+| [`ejercicios/taller-semana-1.md`](ejercicios/taller-semana-1.md) | [`taller-semana-1-sol.md`](ejercicios/taller-semana-1-sol.md) | 90 min |
+
+Taller integrador para el final de la sesión: identificación del diseño, cálculo manual
+del ANOVA, verificación de supuestos, comparaciones múltiples Tukey e interpretación
+práctica. Usa los datos de `resistencia-algodon.csv`.
+
 > Los notebooks se ejecutan de principio a fin con el entorno de [`environment.yml`](../environment.yml).
 > Las versiones Python y R producen resultados equivalentes.

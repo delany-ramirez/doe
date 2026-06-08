@@ -52,5 +52,16 @@ distinguiendo efectos principales de interacciones.
 | 01 | [`ejercicios/ej01-dbca.md`](ejercicios/ej01-dbca.md) | [`ej01-dbca-sol.md`](ejercicios/ej01-dbca-sol.md) |
 | 02 | [`ejercicios/ej02-factorial.md`](ejercicios/ej02-factorial.md) | [`ej02-factorial-sol.md`](ejercicios/ej02-factorial-sol.md) |
 
+### Taller ✅
+
+| Enunciado | Solución | Duración |
+|-----------|----------|----------|
+| [`ejercicios/taller-semana-2.md`](ejercicios/taller-semana-2.md) | [`taller-semana-2-sol.md`](ejercicios/taller-semana-2-sol.md) | 90 min |
+
+Taller integrador en dos partes: Parte A cubre DBCA completo (estructura, ANOVA,
+eficiencia relativa y Tukey) con `rendimiento-extrusion.csv`; Parte B cubre factorial
+3×3 (ANOVA de dos vías, interacción y recomendación operacional) con `vida-bateria.csv`;
+cierra con un problema conceptual de selección de diseño.
+
 > Notebooks ejecutables de principio a fin con [`environment.yml`](../environment.yml);
 > versiones Python y R equivalentes.
