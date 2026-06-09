@@ -99,6 +99,7 @@ Se rechaza $H_0$ para valores grandes de $H$.
 $$
 H_0:\ \text{las } a \text{ poblaciones tienen la misma distribución (misma mediana)},
 $$
+
 $$
 H_1:\ \text{al menos una difiere en localización}.
 $$

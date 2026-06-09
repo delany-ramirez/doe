@@ -57,6 +57,7 @@ H_0:\ \tau_1 = \tau_2 = \cdots = \tau_a = 0
 \quad\Longleftrightarrow\quad
 \mu_1 = \mu_2 = \cdots = \mu_a,
 $$
+
 $$
 H_1:\ \tau_i \neq 0 \ \text{para al menos un } i.
 $$
