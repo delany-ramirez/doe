@@ -20,7 +20,34 @@ desconocida, que aproximamos con un **polinomio** (de primer o segundo orden) en
 de interés. La gráfica de la respuesta esperada sobre el espacio de factores es la
 **superficie de respuesta**.
 
-## 2. Estrategia secuencial de la RSM
+## 2. Factores cuantitativos vs. cualitativos: ¿cuándo aplica la RSM?
+
+La RSM exige que los factores de interés sean **cuantitativos** (continuos): temperatura,
+concentración, tiempo, velocidad… La razón es estructural: para trazar una **superficie**,
+ajustar un polinomio de segundo orden y localizar un punto estacionario, los factores deben
+admitir interpolación y derivación.
+
+| Tipo de factor | Ejemplos | ¿Entra en la RSM? |
+|---|---|---|
+| **Cuantitativo** | temperatura, presión, velocidad | **Sí** — es el factor de la superficie |
+| **Cualitativo** | tipo de catalizador, operario, máquina, proveedor | **No directamente** — se fija o se analiza por separado |
+
+### ¿Qué hacer con factores cualitativos?
+
+1. **Fijarlos** en un nivel determinado y correr la RSM solo con los cuantitativos. Es la
+   estrategia más común cuando el objetivo es optimizar las condiciones de proceso para un
+   material o método ya elegido.
+2. **Repetir la RSM por nivel** del factor cualitativo (p. ej., una RSM por catalizador) y
+   comparar los óptimos obtenidos.
+3. Usar **diseños de mezcla-proceso** o modelos con **covariables** cuando el factor
+   cualitativo no puede fijarse. Esto queda fuera del alcance de este documento (ver
+   `03-temas-avanzados.md`).
+
+> **Regla de oro:** antes de diseñar la RSM, identifica explícitamente qué factores son
+> cuantitativos y cuáles cualitativos. Los cualitativos deben quedar **fijados o
+> estratificados** antes de entrar al modelo polinomial.
+
+## 3. Estrategia secuencial de la RSM
 
 La RSM es **secuencial**, en dos etapas:
 
@@ -34,7 +61,7 @@ La RSM es **secuencial**, en dos etapas:
 > **Filosofía.** Empezar simple y barato (primer orden), moverse hacia donde la respuesta
 > mejora, y solo refinar con un modelo cuadrático cuando se está cerca del óptimo.
 
-## 3. El modelo de primer orden
+## 4. El modelo de primer orden
 
 En una región alejada del óptimo, se aproxima la superficie con un **modelo lineal** (de
 primer orden) en variables codificadas:
@@ -51,7 +78,7 @@ centrales**. Los puntos centrales cumplen dos funciones:
   de los puntos factoriales, la superficie ya **no** es plana y hay que pasar al segundo
   orden.
 
-## 4. Prueba de falta de ajuste y curvatura
+## 5. Prueba de falta de ajuste y curvatura
 
 La **curvatura** se detecta comparando la respuesta media en los puntos centrales
 ($\bar{y}_C$) con la de los puntos factoriales ($\bar{y}_F$):
@@ -64,7 +91,7 @@ La **curvatura** se detecta comparando la respuesta media en los puntos centrale
 Una prueba de **falta de ajuste** (_lack of fit_) formaliza esta comparación usando el
 error puro de las réplicas centrales.
 
-## 5. Ascenso por máxima pendiente (steepest ascent)
+## 6. Ascenso por máxima pendiente (steepest ascent)
 
 Mientras el modelo de primer orden sea válido, la dirección en la que la respuesta
 **aumenta más rápido** es la del **gradiente** del plano ajustado, es decir, proporcional a
@@ -97,7 +124,7 @@ $$
 - El ascenso por máxima pendiente **depende de la escala** de codificación: conviene
   codificar de forma coherente ($-1$/$+1$ en el rango experimental).
 
-## 6. Resumen del flujo
+## 7. Resumen del flujo
 
 ```
 Cribado (2^k)  →  ¿factores activos?

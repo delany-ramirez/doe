@@ -104,14 +104,61 @@ con el que ya se pueden probar los efectos restantes.
 > superior suelen ser ruido. Es el supuesto que hace viable la réplica única y los diseños
 > fraccionados.
 
-## 6. El algoritmo de Yates (nota histórica)
+## 6. Tamaño de muestra y potencia en diseños $2^k$
+
+Antes de correr un $2^k$ hay que responder: **¿cuántas réplicas necesito ($n$)?** La
+respuesta depende de tres parámetros:
+
+| Parámetro | Símbolo | Significado |
+|---|---|---|
+| Diferencia mínima detectable | $\delta$ | el efecto más pequeño que importa prácticamente |
+| Desviación estándar del error | $\sigma$ | estimada de datos previos o piloto |
+| Potencia deseada | $1-\beta$ | probabilidad de detectar el efecto si existe |
+
+El cociente $\Delta = \delta/\sigma$ es la **relación señal-ruido**; con él se usa la curva
+de potencia estándar de la prueba $F$ o la equivalencia con la prueba $t$.
+
+### Regla práctica para un efecto principal
+
+Para detectar un efecto de tamaño $\delta$ con $\alpha = 0{,}05$ y potencia $\geq 0{,}80$:
+
+$$
+n \geq \left(\frac{2 z_{\alpha/2} + z_\beta}{\Delta}\right)^2 ,
+$$
+
+donde $z_{0{,}025} \approx 1{,}96$ y $z_{0{,}20} \approx 0{,}84$. Para $\Delta = 2$ (efecto
+igual a dos desviaciones estándar) resulta $n \approx 2$.
+
+> **Regla de dedo:** con $n = 2$ réplicas se detectan efectos de $\Delta \geq 2$; con
+> $n = 3$, efectos de $\Delta \geq 1{,}5$. Para cribado inicial, $n = 2$ suele ser suficiente.
+
+### En R
+
+```r
+# Potencia de un diseño 2^k con n réplicas, para detectar un efecto = delta
+# usando la aproximación de dos muestras independientes
+power.t.test(n       = 2 * 2^k,   # corridas totales en cada "grupo" del contraste
+             delta   = delta,
+             sd      = sigma,
+             sig.level = 0.05,
+             type    = "two.sample")
+
+# O con la librería pwr (más flexible):
+library(pwr)
+pwr.t.test(d = delta/sigma, sig.level = 0.05, power = 0.80, type = "two.sample")
+```
+
+> **Nota:** cuando no hay estimación previa de $\sigma$, se realiza una **corrida piloto**
+> (en general, la primera réplica del diseño) y se ajusta $n$ antes de correr la segunda.
+
+## 7. El algoritmo de Yates (nota histórica)
 
 Antes del software, los contrastes se calculaban con el **algoritmo de Yates**, un
 procedimiento de sumas y restas sucesivas sobre las respuestas ordenadas en orden estándar.
 Hoy se obtiene todo con `lm`/`ols`, pero conviene conocer el orden estándar de Yates porque
 estructura las tablas de signos.
 
-## 7. Interpretación práctica
+## 8. Interpretación práctica
 
 - Reportar los efectos en una **tabla de efectos** y el gráfico de probabilidad normal.
 - Construir el modelo reducido solo con los términos significativos.
