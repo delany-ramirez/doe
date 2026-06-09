@@ -1,0 +1,84 @@
+---
+title: "02 · Superficie de respuesta de segundo orden — CCD (R)"
+subtitle: "Semana 4 — Optimización (RSM)"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    theme: flatly
+---
+
+## Objetivos
+
+- Ajustar un **modelo cuadrático** con un CCD.
+- Localizar el **punto óptimo**, clasificarlo y graficar contornos.
+
+> Teoría: [`../teoria/02-segundo-orden-ccd-bb.md`](../teoria/02-segundo-orden-ccd-bb.md).
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE,
+                      fig.width = 6, fig.height = 5)
+```
+
+```{r seed}
+set.seed(8)
+```
+
+## 1. El diseño CCD
+
+Dos factores: 4 factoriales ($\pm1$), 4 axiales ($\pm1.414$), 5 centrales. Respuesta = rendimiento (%).
+
+```{r datos}
+df <- read.csv('../datos/rsm-ccd.csv')
+df
+```
+
+## 2. Modelo de segundo orden
+
+```{r modelo}
+modelo <- lm(rendimiento ~ x1 + x2 + I(x1^2) + I(x2^2) + x1:x2, data = df)
+round(coef(modelo), 3)
+cat('R2 =', summary(modelo)$r.squared, '\n')
+```
+
+## 3. Punto estacionario y análisis canónico
+
+$\mathbf{x}_s=-\tfrac12\mathbf{B}^{-1}\mathbf{b}$; los valores propios de $\mathbf{B}$ clasifican el punto.
+
+```{r canonico}
+p <- coef(modelo)
+b <- c(p['x1'], p['x2'])
+B <- matrix(c(p['I(x1^2)'], p['x1:x2']/2,
+              p['x1:x2']/2, p['I(x2^2)']), 2, 2)
+xs <- -0.5 * solve(B, b)
+ev <- eigen(B)$values
+cat('Punto estacionario: x1 =', round(xs[1],3), ' x2 =', round(xs[2],3), '\n')
+cat('Valores propios:', round(ev,3), '\n')
+tipo <- if (all(ev < 0)) 'MAXIMO' else if (all(ev > 0)) 'MINIMO' else 'SILLA'
+cat('Naturaleza:', tipo, '\n')
+nd <- data.frame(x1 = xs[1], x2 = xs[2])
+cat('Rendimiento optimo predicho:', round(predict(modelo, nd), 2), '\n')
+```
+
+Ambos valores propios **negativos** → **máximo**.
+
+> Con el paquete `rsm`: `rsm(rendimiento ~ SO(x1, x2), data = df)` ajusta el modelo y `canonical()` da el análisis canónico automáticamente.
+
+## 4. Gráfica de contornos
+
+```{r contornos}
+g <- seq(-1.7, 1.7, length.out = 60)
+grid <- expand.grid(x1 = g, x2 = g)
+grid$z <- predict(modelo, grid)
+z <- matrix(grid$z, 60, 60)
+filled.contour(g, g, z, color.palette = terrain.colors,
+  xlab = 'x1', ylab = 'x2', main = 'Superficie de respuesta',
+  plot.axes = { axis(1); axis(2); points(xs[1], xs[2], pch = 8, col = 'red', cex = 2) })
+```
+
+## 5. Conclusiones
+
+- Modelo cuadrático con buen ajuste; óptimo (máximo) dentro de la región.
+- **Confirmar** con corridas en el óptimo predicho.
+
+> Equivalente en Python: [`02-rsm-ccd_py.ipynb`](02-rsm-ccd_py.ipynb).

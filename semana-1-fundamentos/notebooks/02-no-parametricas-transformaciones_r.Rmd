@@ -1,0 +1,70 @@
+---
+title: "02 · No paramétricas y transformaciones (R)"
+subtitle: "Semana 1 — Fundamentos (Opcional)"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    theme: flatly
+---
+
+**Opcional.** Cuando los supuestos del ANOVA fallan: **transformar** (Box-Cox, `MASS`) o usar **Kruskal-Wallis**.
+
+> Teoría: [`../teoria/05-no-parametricas-transformaciones.md`](../teoria/05-no-parametricas-transformaciones.md).
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE,
+                      fig.width = 7, fig.height = 4)
+```
+
+```{r paquetes}
+suppressMessages(library(MASS))
+set.seed(7)
+```
+
+## 1. Transformación de Box-Cox
+
+Respuesta con varianza creciente con la media (ruido multiplicativo).
+
+```{r datos-heteroc}
+medias <- c(10, 20, 40, 80)
+trat <- factor(rep(paste0('T', 1:4), each = 8))
+y <- unlist(lapply(medias, function(m) m * exp(rnorm(8, 0, 0.30))))
+dfh <- data.frame(trat, y)
+aggregate(y ~ trat, data = dfh, FUN = function(x) c(media = mean(x), sd = sd(x)))
+```
+
+```{r boxcox}
+bc <- boxcox(y ~ trat, data = dfh, lambda = seq(-2, 2, 0.1))
+lambda <- bc$x[which.max(bc$y)]
+cat('lambda óptimo =', round(lambda, 3),
+    ' (~0 -> log; ~0.5 -> raiz; ~1 -> ninguna)\n')
+```
+
+$\lambda\approx 0$ indica que el **logaritmo** estabiliza la varianza.
+
+```{r comparar-sd}
+dfh$log_y <- log(dfh$y)
+cat('SD por grupo (original):\n'); print(round(tapply(dfh$y,     dfh$trat, sd), 2))
+cat('SD por grupo (log):\n');      print(round(tapply(dfh$log_y, dfh$trat, sd), 3))
+```
+
+En escala log las desviaciones se igualan: el ANOVA es aplicable sobre `log_y`.
+
+## 2. Prueba de Kruskal-Wallis
+
+```{r kruskal}
+coag <- read.csv('../datos/tiempo-coagulacion.csv')
+coag$dieta <- factor(coag$dieta)
+kruskal.test(tiempo ~ dieta, data = coag)
+```
+
+$p\approx0.0007$: se **rechaza** la igualdad de distribuciones, coherente con el ANOVA del notebook 01. El post-hoc es la prueba de **Dunn** (`FSA::dunnTest`).
+
+## 3. ¿Cuándo cada cosa?
+
+1. Heterocedasticidad/asimetría → **Box-Cox**, reanalizar.
+2. Sin transformación útil u respuesta ordinal → **Kruskal-Wallis** (+ Dunn).
+3. Solo varianzas desiguales → **ANOVA de Welch** (`oneway.test`).
+
+> Resultados equivalentes a la versión en Python ([`02-no-parametricas-transformaciones_py.ipynb`](02-no-parametricas-transformaciones_py.ipynb)).

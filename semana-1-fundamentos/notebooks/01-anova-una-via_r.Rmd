@@ -1,0 +1,119 @@
+---
+title: "01 · ANOVA de una vía (R)"
+subtitle: "Semana 1 — Fundamentos y un solo factor"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    theme: flatly
+---
+
+## Objetivos
+
+- Ajustar un ANOVA de una vía para un experimento de un solo factor.
+- Verificar los supuestos mediante el análisis de residuales.
+- Comparar tratamientos con **Tukey HSD** y, frente a un control, con **Dunnett**.
+
+**Paquetes:** `car` (supuestos), `multcomp` y `emmeans` (comparaciones múltiples).
+
+> Teoría: [`../teoria/03-anova-una-via.md`](../teoria/03-anova-una-via.md) y [`../teoria/04-comparaciones-multiples.md`](../teoria/04-comparaciones-multiples.md).
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE,
+                      fig.width = 7, fig.height = 4)
+```
+
+```{r paquetes}
+suppressMessages({
+  library(car)
+  library(multcomp)
+  library(emmeans)
+})
+set.seed(1)
+```
+
+## 1. Los datos
+
+Resistencia de una fibra sintética según el **% de algodón** (5 niveles, 5 réplicas; Montgomery, ej. 3.1).
+
+```{r datos}
+df <- read.csv('../datos/resistencia-algodon.csv')
+df$algodon_pct <- factor(df$algodon_pct)
+aggregate(resistencia ~ algodon_pct, data = df,
+          FUN = function(x) c(media = mean(x), sd = sd(x)))
+```
+
+```{r boxplot}
+boxplot(resistencia ~ algodon_pct, data = df,
+        xlab = '% algodón', ylab = 'Resistencia',
+        main = 'Resistencia por % de algodón', col = 'lightsteelblue')
+```
+
+## 2. ANOVA de una vía
+
+Modelo $y_{ij} = \mu + \tau_i + \varepsilon_{ij}$, con $H_0: \tau_i = 0\ \forall i$.
+
+```{r anova}
+modelo <- aov(resistencia ~ algodon_pct, data = df)
+summary(modelo)
+cat('R2 =', summary(lm(modelo))$r.squared, '\n')
+```
+
+Valor-p $\approx 9\times10^{-6}$: **se rechaza $H_0$** ($R^2\approx0.75$).
+
+## 3. Verificación de supuestos (residuales)
+
+```{r supuestos-graficos}
+op <- par(mfrow = c(1, 2))
+qqnorm(residuals(modelo)); qqline(residuals(modelo))
+plot(fitted(modelo), residuals(modelo),
+     xlab = 'Ajustados', ylab = 'Residuales',
+     main = 'Residuales vs. ajustados'); abline(h = 0, lty = 2)
+par(op)
+```
+
+```{r supuestos-tests}
+shapiro.test(residuals(modelo))                   # normalidad
+leveneTest(resistencia ~ algodon_pct, data = df)  # homocedasticidad (car)
+```
+
+Shapiro-Wilk ($p\approx0.18$) y Levene ($p\approx0.86$) no rechazan: supuestos OK.
+
+## 4. Comparaciones múltiples: Tukey HSD
+
+```{r tukey}
+TukeyHSD(modelo, conf.level = 0.95)
+plot(TukeyHSD(modelo))
+```
+
+El nivel **30 %** da la mayor resistencia y supera a 15, 20 y 35 %.
+
+## 5. Comparaciones contra un control: Dunnett
+
+Tiempos de coagulación según **dieta** (A = control). Usamos `multcomp::glht`.
+
+```{r dunnett}
+coag <- read.csv('../datos/tiempo-coagulacion.csv')
+coag$dieta <- relevel(factor(coag$dieta), ref = 'A')
+mod_c <- aov(tiempo ~ dieta, data = coag)
+dunnett <- glht(mod_c, linfct = mcp(dieta = 'Dunnett'))
+summary(dunnett)
+confint(dunnett)
+```
+
+Frente al control A, **B y C** difieren significativamente; **D** no.
+
+> Alternativa con `emmeans`:
+> ```r
+> emm <- emmeans(mod_c, ~ dieta)
+> contrast(emm, method = 'trt.vs.ctrl', ref = 'A')
+> ```
+
+## 6. Conclusiones
+
+- El % de algodón **afecta** la resistencia (ANOVA, $p\approx 9\times10^{-6}$).
+- Supuestos verificados.
+- **Tukey:** 30 % es el mejor nivel.
+- **Dunnett:** B y C superan al control A; D no.
+
+> Resultados equivalentes a la versión en Python ([`01-anova-una-via_py.ipynb`](01-anova-una-via_py.ipynb)).

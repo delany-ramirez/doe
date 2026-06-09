@@ -1,0 +1,82 @@
+---
+title: "01 · Diseño $2^k$ con réplica única (R)"
+subtitle: "Semana 3 — Diseños $2^k$ y fraccionados"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    theme: flatly
+---
+
+## Objetivos
+
+- Calcular los **efectos** de un $2^4$.
+- Identificar efectos importantes con el **gráfico de probabilidad normal**.
+- Construir el modelo reducido y validar supuestos.
+
+> Teoría: [`../teoria/01-disenos-2k.md`](../teoria/01-disenos-2k.md).
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE,
+                      fig.width = 7, fig.height = 5)
+```
+
+```{r seed}
+set.seed(3)
+```
+
+## 1. Los datos
+
+Filtración (Montgomery 6.2): tasa (gal/h) con 4 factores codificados $-1$/$+1$ ($A$ temperatura, $B$ presión, $C$ concentración, $D$ agitación). Réplica única, 16 corridas.
+
+```{r datos}
+df <- read.csv('../datos/filtracion-2k.csv')
+head(df)
+```
+
+## 2. Cálculo de efectos
+
+El efecto es el doble del coeficiente de regresión en variables codificadas.
+
+```{r efectos}
+modelo <- lm(tasa ~ A*B*C*D, data = df)
+efectos <- 2 * coef(modelo)[-1]
+round(sort(efectos[order(abs(efectos), decreasing = TRUE)], decreasing = TRUE), 2)
+```
+
+## 3. Gráfico de probabilidad normal de efectos
+
+```{r prob-normal}
+ef <- sort(efectos)
+n <- length(ef)
+q <- qnorm((seq_len(n) - 0.5) / n)
+plot(ef, q, xlab = 'Efecto estimado', ylab = 'Cuantil normal',
+     main = 'Gráfico de probabilidad normal de efectos', pch = 19)
+abline(v = 0, lty = 2, col = 'gray')
+text(ef[abs(ef) > 8], q[abs(ef) > 8], names(ef)[abs(ef) > 8], pos = 4)
+```
+
+Los efectos **$A$, $C$, $D$, $AC$, $AD$** se separan de la recta: son significativos. $B$ es despreciable.
+
+## 4. Modelo reducido y supuestos
+
+```{r reducido}
+reducido <- lm(tasa ~ A + C + D + A:C + A:D, data = df)
+anova(reducido)
+cat('R2 =', summary(reducido)$r.squared, '\n')
+```
+
+```{r supuestos}
+op <- par(mfrow = c(1, 2))
+qqnorm(residuals(reducido)); qqline(residuals(reducido))
+plot(fitted(reducido), residuals(reducido), xlab='Ajustados', ylab='Residuales',
+     main='Residuales vs. ajustados'); abline(h=0, lty=2)
+par(op)
+```
+
+## 5. Conclusiones
+
+- Activos: $A$, $C$, $D$, $AC$, $AD$. $B$ no influye.
+- Las interacciones $AC$ y $AD$ implican que los óptimos de $C$ y $D$ dependen de $A$.
+
+> Equivalente en Python: [`01-disenos-2k_py.ipynb`](01-disenos-2k_py.ipynb).

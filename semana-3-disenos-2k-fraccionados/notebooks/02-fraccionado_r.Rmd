@@ -1,0 +1,63 @@
+---
+title: "02 · Factorial fraccionado $2^{k-1}$ y alias (R)"
+subtitle: "Semana 3 — Diseños $2^k$ y fraccionados"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    theme: flatly
+---
+
+## Objetivos
+
+- Construir una **media fracción** $2^{4-1}$ con $I=ABCD$.
+- Entender la **estructura de alias**.
+
+> Teoría: [`../teoria/03-factoriales-fraccionados.md`](../teoria/03-factoriales-fraccionados.md).
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE,
+                      fig.width = 7, fig.height = 4)
+```
+
+```{r seed}
+set.seed(3)
+```
+
+## 1. De $2^4$ a media fracción
+
+Seleccionamos la media fracción con $ABCD=+1$ (relación de definición $I=ABCD$).
+
+```{r fraccion}
+df <- read.csv('../datos/filtracion-2k.csv')
+df$ABCD <- df$A * df$B * df$C * df$D
+half <- df[df$ABCD == 1, c('A','B','C','D','tasa')]
+half
+```
+
+## 2. Estructura de alias
+
+$A=BCD$, $B=ACD$, $C=ABD$, $D=ABC$, $AB=CD$, $AC=BD$, $AD=BC$.
+
+```{r alias}
+modelo <- lm(tasa ~ A*B*C, data = half)
+ef <- 2 * coef(modelo)[-1]
+alias_vec <- c('A+BCD','B+ACD','AB+CD','C+ABD','AC+BD','BC+AD','ABC+D')
+data.frame(columna = names(ef), estima = alias_vec, efecto = round(ef, 2))
+```
+
+## 3. Interpretación
+
+Frente al $2^4$ completo ($A\approx21.6$, $AC\approx-18.1$, $AD\approx16.6$, $D\approx14.6$, $C\approx9.9$):
+
+- Columna $A$ → $A+BCD\approx A$. ✅
+- Columna $AC$ → $AC+BD\approx AC$. ✅
+- Columna $BC$ → $BC+AD\approx AD$ (¡$AD$ confundido en $BC$!). ⚠️
+- Columna $ABC$ → $D+ABC\approx D$. ✅
+
+## 4. Conclusión
+
+- Resolución **IV**: principales limpios; interacciones de dos factores confundidas entre sí.
+- La mitad de corridas, casi la misma información sobre efectos dominantes.
+
+> Equivalente en Python: [`02-fraccionado_py.ipynb`](02-fraccionado_py.ipynb).

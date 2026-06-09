@@ -1,0 +1,69 @@
+---
+title: "01 · Ascenso por máxima pendiente (R)"
+subtitle: "Semana 4 — Optimización (RSM)"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    theme: flatly
+---
+
+## Objetivos
+
+- Ajustar un **modelo de primer orden** con puntos centrales.
+- Calcular la **trayectoria de máxima pendiente**.
+
+> Teoría: [`../teoria/01-rsm-ascenso.md`](../teoria/01-rsm-ascenso.md).
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE,
+                      fig.width = 6, fig.height = 5)
+```
+
+```{r seed}
+set.seed(9)
+```
+
+## 1. Los datos
+
+Región alejada del óptimo: $2^2$ + 3 centros, variables codificadas.
+
+```{r datos}
+df <- read.csv('../datos/proceso-primer-orden.csv')
+df
+```
+
+## 2. Modelo de primer orden
+
+```{r modelo}
+modelo <- lm(y ~ x1 + x2, data = df)
+coef(modelo)
+cat('R2 =', summary(modelo)$r.squared, '\n')
+```
+
+## 3. Trayectoria de máxima pendiente
+
+Paso de $x_2$ proporcional a $\beta_2/\beta_1$ (referencia $x_1$).
+
+```{r trayectoria}
+b <- coef(modelo)
+paso_x1 <- 1.0
+paso_x2 <- (b['x2'] / b['x1']) * paso_x1
+pasos <- 0:5
+ruta <- data.frame(paso = pasos, x1 = pasos * paso_x1,
+                   x2 = round(pasos * paso_x2, 3))
+ruta$y_pred <- predict(modelo, ruta[, c('x1','x2')])
+ruta
+```
+
+```{r grafico}
+plot(df$x1, df$x2, col = 'gray', pch = 19, xlim = c(-1, 6), ylim = c(-1, 3),
+     xlab = 'x1', ylab = 'x2', main = 'Trayectoria de máxima pendiente')
+lines(ruta$x1, ruta$x2, type = 'o', col = 'red', pch = 19)
+```
+
+## 4. Interpretación
+
+Se corre a lo largo de la trayectoria midiendo la respuesta, avanzando mientras mejore; al estancarse, se pasa al **modelo de segundo orden** (notebook 02).
+
+> Equivalente en Python: [`01-ascenso-pendiente_py.ipynb`](01-ascenso-pendiente_py.ipynb).

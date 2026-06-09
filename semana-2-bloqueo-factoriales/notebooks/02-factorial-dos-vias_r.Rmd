@@ -1,0 +1,74 @@
+---
+title: "02 · Factorial de dos factores — ANOVA de dos vías (R)"
+subtitle: "Semana 2 — Bloqueo y factoriales"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    theme: flatly
+---
+
+## Objetivos
+
+- Ajustar un factorial de dos factores con interacción.
+- Interpretar la **gráfica de interacción** y la estrategia de análisis.
+
+> Teoría: [`../teoria/02-factoriales-interacciones.md`](../teoria/02-factoriales-interacciones.md) y [`../teoria/03-anova-dos-vias.md`](../teoria/03-anova-dos-vias.md).
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE,
+                      fig.width = 7, fig.height = 4)
+```
+
+```{r paquetes}
+suppressMessages(library(car))
+set.seed(2)
+```
+
+## 1. Los datos
+
+Vida (h) de una batería según **material** (3) y **temperatura** (15/70/125 °F), $n=4$ (Montgomery, ej. 5.3).
+
+```{r datos}
+df <- read.csv('../datos/vida-bateria.csv')
+df$material <- factor(df$material)
+df$temperatura <- factor(df$temperatura)
+with(df, tapply(vida, list(material, temperatura), mean))
+```
+
+## 2. Gráfica de interacción
+
+```{r interaccion}
+with(df, interaction.plot(temperatura, material, vida,
+     xlab='Temperatura (°F)', ylab='Vida media (h)',
+     main='Interacción material × temperatura', lwd=2, col=1:3))
+```
+
+Las líneas **no** son paralelas: se anticipa una **interacción**.
+
+## 3. ANOVA de dos vías con interacción
+
+```{r anova}
+modelo <- aov(vida ~ material * temperatura, data = df)
+summary(modelo)
+```
+
+**Mirar primero la interacción:** `material:temperatura` es significativa ($p\approx0.019$). Material y temperatura actúan conjuntamente; los efectos principales se interpretan con cautela.
+
+## 4. Verificación de supuestos
+
+```{r supuestos}
+op <- par(mfrow = c(1, 2))
+qqnorm(residuals(modelo)); qqline(residuals(modelo))
+plot(fitted(modelo), residuals(modelo), xlab='Ajustados', ylab='Residuales',
+     main='Residuales vs. ajustados'); abline(h=0, lty=2)
+par(op)
+shapiro.test(residuals(modelo))
+```
+
+## 5. Conclusiones
+
+- **Interacción significativa** material × temperatura.
+- A alta temperatura el **material 3** es superior.
+
+> Equivalente en Python: [`02-factorial-dos-vias_py.ipynb`](02-factorial-dos-vias_py.ipynb).

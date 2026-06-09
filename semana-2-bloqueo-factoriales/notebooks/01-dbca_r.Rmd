@@ -1,0 +1,94 @@
+---
+title: "01 · Diseño en bloques completos al azar — DBCA (R)"
+subtitle: "Semana 2 — Bloqueo y factoriales"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    theme: flatly
+---
+
+## Objetivos
+
+- Ajustar y analizar un DBCA (tratamiento + bloque).
+- Verificar supuestos y valorar la **eficiencia** del bloqueo.
+
+> Teoría: [`../teoria/01-bloques-dbca.md`](../teoria/01-bloques-dbca.md).
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE,
+                      fig.width = 7, fig.height = 4)
+```
+
+```{r paquetes}
+suppressMessages(library(car))
+set.seed(2)
+```
+
+## 1. Los datos
+
+Rendimiento de extrusión según **presión** (tratamiento, 4 niveles) y **lote** (bloque, 6 niveles); Montgomery ej. 4.1.
+
+```{r datos}
+df <- read.csv('../datos/rendimiento-extrusion.csv')
+df$presion <- factor(df$presion)
+df$lote <- factor(df$lote)
+with(df, tapply(rendimiento, list(presion, lote), mean))
+```
+
+```{r boxplots}
+op <- par(mfrow = c(1, 2))
+boxplot(rendimiento ~ presion, data = df, main = 'Por presión', col = 'lightsteelblue')
+boxplot(rendimiento ~ lote, data = df, main = 'Por lote (bloque)', col = 'lightgreen')
+par(op)
+```
+
+## 2. ANOVA del DBCA
+
+$y_{ij}=\mu+\tau_i+\beta_j+\varepsilon_{ij}$ (sin interacción).
+
+```{r anova}
+modelo <- aov(rendimiento ~ presion + lote, data = df)
+summary(modelo)
+```
+
+Presión significativa ($p\approx0.002$); los lotes también difieren ($p\approx0.006$): **bloquear fue acertado**.
+
+## 3. Verificación de supuestos
+
+```{r supuestos}
+op <- par(mfrow = c(1, 2))
+qqnorm(residuals(modelo)); qqline(residuals(modelo))
+plot(fitted(modelo), residuals(modelo), xlab='Ajustados', ylab='Residuales',
+     main='Residuales vs. ajustados'); abline(h=0, lty=2)
+par(op)
+shapiro.test(residuals(modelo))
+```
+
+El DBCA asume **aditividad** (no interacción tratamiento×bloque); puede chequearse con la prueba de no aditividad de Tukey.
+
+## 4. Comparación de presiones (Tukey)
+
+```{r tukey}
+TukeyHSD(modelo, 'presion')
+```
+
+## 5. Eficiencia relativa del bloqueo
+
+```{r eficiencia}
+s <- summary(modelo)[[1]]
+a <- nlevels(df$presion); b <- nlevels(df$lote)
+CME <- s['Residuals', 'Mean Sq']
+CMB <- s['lote', 'Mean Sq']
+ER <- ((b-1)*CMB + b*(a-1)*CME) / ((a*b-1)*CME)
+cat('Eficiencia relativa DBCA vs. DCA =', round(ER, 2), '\n')
+```
+
+$ER>1$: el bloqueo mejoró la precisión.
+
+## 6. Conclusiones
+
+- La presión afecta el rendimiento.
+- El bloqueo por lote fue eficaz.
+
+> Equivalente en Python: [`01-dbca_py.ipynb`](01-dbca_py.ipynb).
