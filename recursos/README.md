@@ -1,7 +1,5 @@
 # Recursos generales
 
-> ✅ **Completo** (Fase 10): bibliografía, cheatsheet, enlaces y plantillas.
-
 ## Contenido
 
 | Recurso | Descripción |

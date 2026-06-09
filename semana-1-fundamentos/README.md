@@ -1,7 +1,5 @@
 # Semana 1 — Fundamentos y un solo factor (10 h)
 
-> ✅ **Semana completa:** teoría (Fase 1) + notebooks, datos y ejercicios (Fase 2).
-
 ## Objetivos
 
 Al finalizar la semana, el estudiante será capaz de planear un experimento de un solo
@@ -9,18 +7,18 @@ factor, analizarlo con ANOVA de una vía, verificar sus supuestos y comparar tra
 
 ## Contenidos
 
-### ✅ Núcleo
+### Núcleo
 - Principios del DOE: aleatorización, replicación, bloqueo; experimental vs. observacional.
 - Repaso de inferencia aplicada: hipótesis, potencia y tamaño de muestra.
 - ANOVA de una vía (efectos fijos) y verificación de supuestos (análisis de residuales).
 - Comparaciones múltiples: Tukey y Dunnett.
 
-### 🔵 Opcional
+### Opcional
 - Pruebas no paramétricas (Kruskal-Wallis), transformaciones (Box-Cox).
 
 ## Materiales
 
-### Teoría ✅
+### Teoría
 
 | # | Documento | Tema |
 |---|-----------|------|
@@ -30,14 +28,14 @@ factor, analizarlo con ANOVA de una vía, verificar sus supuestos y comparar tra
 | 04 | [`teoria/04-comparaciones-multiples.md`](teoria/04-comparaciones-multiples.md) | Comparaciones múltiples: Tukey (HSD) y Dunnett |
 | 05 🔵 | [`teoria/05-no-parametricas-transformaciones.md`](teoria/05-no-parametricas-transformaciones.md) | Opcional: Kruskal-Wallis y transformaciones (Box-Cox) |
 
-### Notebooks ✅ (doble versión R + Python)
+### Notebooks (doble versión R + Python)
 
 | # | Notebook | Contenido |
 |---|----------|-----------|
 | 01 | `notebooks/01-anova-una-via_{py\|r}.ipynb` | ANOVA de una vía, residuales, Tukey y Dunnett |
 | 02 🔵 | `notebooks/02-no-parametricas-transformaciones_{py\|r}.ipynb` | Opcional: Box-Cox y Kruskal-Wallis |
 
-### Datos ✅
+### Datos
 
 | Archivo | Descripción | Variables |
 |---------|-------------|-----------|
@@ -45,14 +43,14 @@ factor, analizarlo con ANOVA de una vía, verificar sus supuestos y comparar tra
 | [`datos/tiempo-coagulacion.csv`](datos/tiempo-coagulacion.csv) | Tiempo de coagulación por dieta (A = control); diseño desbalanceado | `dieta` (A–D), `tiempo` (s) |
 | [`datos/rendimiento-catalizador.csv`](datos/rendimiento-catalizador.csv) | Rendimiento por catalizador (usado en el ejercicio 01); 4 niveles × 6 réplicas | `catalizador` (C1–C4), `rendimiento` (%) |
 
-### Ejercicios ✅
+### Ejercicios
 
 | # | Enunciado | Solución |
 |---|-----------|----------|
 | 01 | [`ejercicios/ej01-anova.md`](ejercicios/ej01-anova.md) | [`ej01-anova-sol.md`](ejercicios/ej01-anova-sol.md) |
 | 02 🔵 | [`ejercicios/ej02-no-parametricas.md`](ejercicios/ej02-no-parametricas.md) | [`ej02-no-parametricas-sol.md`](ejercicios/ej02-no-parametricas-sol.md) |
 
-### Taller ✅
+### Taller
 
 | Enunciado | Solución | Duración |
 |-----------|----------|----------|

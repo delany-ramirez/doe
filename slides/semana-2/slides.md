@@ -1,7 +1,7 @@
 ---
 theme: seriph
 title: "Semana 2 — Bloqueo y Diseños Factoriales"
-author: "Diseño de Experimentos · Maestría"
+author: "Diseño Estadístico de Experimentos · Maestría en Investigación Operativa y Estadística"
 keywords: DBCA, factorial, interacción, ANOVA dos vías
 colorSchema: light
 highlighter: shiki
@@ -13,7 +13,7 @@ drawings:
 # Semana 2
 ## Bloqueo y Diseños Factoriales
 
-Diseño de Experimentos · Maestría
+Diseño Estadístico de Experimentos · Maestría en Investigación Operativa y Estadística
 
 ---
 layout: default

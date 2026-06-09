@@ -1,7 +1,5 @@
 # Semana 2 — Bloqueo y factoriales (10 h)
 
-> ✅ **Semana completa:** teoría (Fase 3) + notebooks, datos y ejercicios (Fase 4).
-
 ## Objetivos
 
 Controlar la variabilidad mediante bloqueo y analizar experimentos con dos factores,
@@ -9,18 +7,18 @@ distinguiendo efectos principales de interacciones.
 
 ## Contenidos
 
-### ✅ Núcleo
+### Núcleo
 - Diseño en bloques completos aleatorizados (DBCA).
 - Diseños factoriales: efectos principales e interacciones.
 - Factorial de dos factores y ANOVA de dos vías.
 
-### 🔵 Opcional
+### Opcional
 - Cuadrados latinos (tratamiento breve, como herramienta de bloqueo doble).
 - Diseños en bloques incompletos balanceados (BIBD); efectos aleatorios/mixtos.
 
 ## Materiales
 
-### Teoría ✅
+### Teoría
 
 | # | Documento | Tema |
 |---|-----------|------|
@@ -29,14 +27,14 @@ distinguiendo efectos principales de interacciones.
 | 03 | [`teoria/03-anova-dos-vias.md`](teoria/03-anova-dos-vias.md) | Factorial de dos factores y ANOVA de dos vías |
 | 04 🔵 | [`teoria/04-cuadrados-latinos-bibd.md`](teoria/04-cuadrados-latinos-bibd.md) | Opcional: cuadrados latinos, BIBD y efectos aleatorios/mixtos |
 
-### Notebooks ✅ (doble versión R + Python)
+### Notebooks (doble versión R + Python)
 
 | # | Notebook | Contenido |
 |---|----------|-----------|
 | 01 | `notebooks/01-dbca_{py\|r}.ipynb` | DBCA, supuestos y eficiencia del bloqueo |
 | 02 | `notebooks/02-factorial-dos-vias_{py\|r}.ipynb` | Factorial 2 factores, interacción y ANOVA de dos vías |
 
-### Datos ✅
+### Datos
 
 | Archivo | Descripción | Variables |
 |---------|-------------|-----------|
@@ -45,14 +43,14 @@ distinguiendo efectos principales de interacciones.
 | [`datos/rendimiento-fertilizante.csv`](datos/rendimiento-fertilizante.csv) | DBCA del ejercicio 01 (fertilizante × parcela) | `fertilizante`, `parcela`, `rendimiento` |
 | [`datos/conversion-catalizador.csv`](datos/conversion-catalizador.csv) | Factorial 2×3 del ejercicio 02 (catalizador × concentración) | `catalizador`, `concentracion`, `conversion` |
 
-### Ejercicios ✅
+### Ejercicios
 
 | # | Enunciado | Solución |
 |---|-----------|----------|
 | 01 | [`ejercicios/ej01-dbca.md`](ejercicios/ej01-dbca.md) | [`ej01-dbca-sol.md`](ejercicios/ej01-dbca-sol.md) |
 | 02 | [`ejercicios/ej02-factorial.md`](ejercicios/ej02-factorial.md) | [`ej02-factorial-sol.md`](ejercicios/ej02-factorial-sol.md) |
 
-### Taller ✅
+### Taller
 
 | Enunciado | Solución | Duración |
 |-----------|----------|----------|

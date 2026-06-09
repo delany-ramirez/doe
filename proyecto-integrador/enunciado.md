@@ -1,6 +1,6 @@
 # Proyecto integrador — Optimización de un proceso de extracción
 
-> Proyecto final del curso de Diseño de Experimentos. Integra las cuatro semanas:
+> Proyecto final del curso de Diseño Estadístico de Experimentos — Maestría en Investigación Operativa y Estadística. Integra las cuatro semanas:
 > planeación, diseño factorial, ANOVA y verificación de supuestos, interacciones,
 > diagnóstico de curvatura y la decisión de pasar a superficie de respuesta.
 

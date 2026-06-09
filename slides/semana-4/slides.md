@@ -1,7 +1,7 @@
 ---
 theme: seriph
 title: "Semana 4 — RSM y Optimización"
-author: "Diseño de Experimentos · Maestría"
+author: "Diseño Estadístico de Experimentos · Maestría en Investigación Operativa y Estadística"
 keywords: RSM, superficie de respuesta, CCD, Box-Behnken, optimización, ascenso
 colorSchema: light
 highlighter: shiki
@@ -13,7 +13,7 @@ drawings:
 # Semana 4
 ## Metodología de Superficie de Respuesta y Optimización
 
-Diseño de Experimentos · Maestría
+Diseño Estadístico de Experimentos · Maestría en Investigación Operativa y Estadística
 
 ---
 layout: default

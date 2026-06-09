@@ -1,7 +1,5 @@
 # Proyecto integrador
 
-> ✅ **Completo** (Fase 9): enunciado, datos y rúbrica.
-
 Proyecto final que integra lo aprendido en las cuatro semanas: planeación de un
 experimento, análisis factorial con ANOVA y verificación de supuestos, interpretación de
 interacciones, diagnóstico de curvatura y la decisión de pasar a superficie de respuesta

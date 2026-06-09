@@ -1,4 +1,4 @@
-# Cheatsheet de Diseño de Experimentos
+# Cheatsheet de Diseño Estadístico de Experimentos
 
 Resumen de consulta rápida. Notación de Montgomery.
 

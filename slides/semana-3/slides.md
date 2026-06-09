@@ -1,7 +1,7 @@
 ---
 theme: seriph
 title: "Semana 3 — Diseños 2^k y Factoriales Fraccionados"
-author: "Diseño de Experimentos · Maestría"
+author: "Diseño Estadístico de Experimentos · Maestría en Investigación Operativa y Estadística"
 keywords: 2k, factorial, fraccionado, alias, resolución, screening
 colorSchema: light
 highlighter: shiki
@@ -13,7 +13,7 @@ drawings:
 # Semana 3
 ## Diseños $2^k$ y Factoriales Fraccionados
 
-Diseño de Experimentos · Maestría
+Diseño Estadístico de Experimentos · Maestría en Investigación Operativa y Estadística
 
 ---
 layout: default

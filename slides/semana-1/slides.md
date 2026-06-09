@@ -1,7 +1,7 @@
 ---
 theme: seriph
 title: "Semana 1 — Fundamentos y Diseño de Un Factor"
-author: "Diseño de Experimentos · Maestría"
+author: "Diseño Estadístico de Experimentos · Maestría en Investigación Operativa y Estadística"
 keywords: DOE, ANOVA, experimentos, estadística
 colorSchema: light
 highlighter: shiki
@@ -13,7 +13,7 @@ drawings:
 # Semana 1
 ## Fundamentos y Diseño de Un Factor
 
-Diseño de Experimentos · Maestría
+Diseño Estadístico de Experimentos · Maestría en Investigación Operativa y Estadística
 
 ---
 layout: default
