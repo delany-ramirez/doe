@@ -39,9 +39,16 @@ doe/
 ```bash
 conda env create -f environment.yml
 conda activate doe
-Rscript -e "IRkernel::installspec()"   # registra el kernel de R en Jupyter
+Rscript -e "install.packages('IRkernel', repos='https://cloud.r-project.org')"
+Rscript -e "IRkernel::installspec(user = TRUE)"   # registra el kernel de R en Jupyter
 jupyter lab
 ```
+
+> Si `conda activate doe` falla en una terminal nueva, inicializa tu shell y vuelve a abrir VS Code:
+>
+> ```bash
+> conda init bash
+> ```
 
 **Opción B — solo Python (pip):**
 
@@ -51,6 +58,19 @@ python -m venv .venv
 pip install -r requirements.txt
 jupyter lab
 ```
+
+## 🧠 Kernel de R en VS Code
+
+1. Abre cualquier notebook `*_r.ipynb`.
+2. En el selector de kernel (esquina superior derecha), elige **R** / **ir**.
+3. Si no aparece, ejecuta:
+
+```bash
+Rscript -e "install.packages('IRkernel', repos='https://cloud.r-project.org')"
+Rscript -e "IRkernel::installspec(user = TRUE)"
+```
+
+4. Recarga VS Code con **Developer: Reload Window** y vuelve a seleccionar el kernel.
 
 ## 🎞️ Diapositivas (Slidev)
 
