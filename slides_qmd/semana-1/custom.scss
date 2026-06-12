@@ -30,7 +30,23 @@ $link-color: #2b6cb0;
   font-style: italic;
 }
 
-// Colored boxes for "Los Tres Principios"
+// Colored boxes
+.box-red {
+  background-color: #fff5f5;
+  border-left: 4px solid #e53e3e;
+  padding: 0.8rem 1rem;
+  border-radius: 0.4rem;
+  height: 100%;
+}
+
+.box-orange {
+  background-color: #fffaf0;
+  border-left: 4px solid #dd6b20;
+  padding: 0.8rem 1rem;
+  border-radius: 0.4rem;
+  height: 100%;
+}
+
 .box-blue {
   background-color: #ebf8ff;
   border-left: 4px solid #3182ce;
