@@ -29,7 +29,8 @@ doe/
 ├── semana-4-rsm-optimizacion/           (misma sub-estructura)
 ├── proyecto-integrador/
 ├── recursos/
-└── slides/                       # presentaciones Slidev (una por semana)
+├── slides/                       # presentaciones Slidev (una por semana)
+└── slides_qmd/                   # presentaciones Quarto/Reveal.js (una por semana)
 ```
 
 ## ⚙️ Puesta en marcha
@@ -72,9 +73,25 @@ Rscript -e "IRkernel::installspec(user = TRUE)"
 
 4. Recarga VS Code con **Developer: Reload Window** y vuelve a seleccionar el kernel.
 
-## 🎞️ Diapositivas (Slidev)
+## 🎞️ Diapositivas
 
-Las presentaciones están en `slides/` (una por semana). Requieren **Node.js ≥ 18**.
+Hay dos versiones de las presentaciones; ambas cubren el mismo contenido.
+
+### Opción A — Quarto / Reveal.js (`slides_qmd/`) ✅ Recomendada
+
+Genera un **único `.html` autocontenido** que se abre con doble clic, sin servidor ni dependencias adicionales. Requiere [Quarto](https://quarto.org/docs/get-started/) instalado.
+
+**Renderizar una semana:**
+
+```bash
+quarto render slides_qmd/semana-1/slides.qmd   # genera slides_qmd/semana-1/slides.html
+```
+
+El archivo resultante es portable: funciona offline y desde cualquier ruta.
+
+### Opción B — Slidev (`slides/`)
+
+Requiere **Node.js ≥ 18**. Los HTML generados necesitan un servidor local para funcionar (restricción de `type="module"` en `file://`).
 
 **Instalar dependencias (una sola vez):**
 
@@ -92,13 +109,20 @@ npm run semana-3
 npm run semana-4
 ```
 
-**Generar HTML estático:**
+**Generar HTML estático y servirlo:**
 
 ```bash
 npm run build:1   # genera dist/semana-1/
 npm run build:2
 npm run build:3
 npm run build:4
+npm run serve     # sirve dist/ en http://localhost:3000
+```
+
+**Exportar a PDF** (requiere `playwright-chromium`, ya incluido en `devDependencies`):
+
+```bash
+npx slidev export semana-1/slides.md --output ../dist/semana-1.pdf
 ```
 
 ## 📄 Licencia

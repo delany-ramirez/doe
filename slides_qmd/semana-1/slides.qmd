@@ -1,0 +1,370 @@
+---
+title: "Semana 1 — Fundamentos y Diseño de Un Factor"
+subtitle: "Diseño Estadístico de Experimentos · Maestría en Investigación Operativa y Estadística"
+format:
+  revealjs:
+    theme: [simple, custom.scss]
+    embed-resources: true
+    slide-number: true
+    transition: slide
+    highlight-style: github
+    html-math-method: katex
+    width: 1280
+    height: 720
+    margin: 0.05
+    scrollable: true
+    incremental: false
+lang: es
+---
+
+## Agenda
+
+::: {.incremental}
+1. **¿Qué es un experimento diseñado?** — principios y vocabulario
+2. **Inferencia aplicada** — hipótesis, errores, potencia
+3. **ANOVA de una vía** — modelo, descomposición, prueba F
+4. **Supuestos y residuales** — cómo verificarlos
+5. **Comparaciones múltiples** — Tukey y Dunnett
+6. 🔵 Opcional: transformaciones y Kruskal-Wallis
+:::
+
+## {background-color="#1a365d" .center}
+
+[Parte 1]{.parte-numero}
+
+[¿Qué es un Experimento Diseñado?]{.parte-titulo}
+
+## ¿Qué es un experimento? {.smaller}
+
+> Un **experimento** es una serie de pruebas donde se hacen cambios deliberados en las entradas para observar el efecto en la respuesta. *(Montgomery)*
+
+### Modelo del proceso
+
+| Componente | Símbolo | Ejemplos |
+|---|---|---|
+| Factores **controlables** | $x_1, x_2, \dots, x_k$ | temperatura, concentración |
+| Factores **no controlables** | $z_1, z_2, \dots, z_q$ | humedad, lote de materia prima |
+| **Respuesta** | $y$ | resistencia, rendimiento, pureza |
+
+### Objetivos típicos
+
+1. ¿**Qué** factores influyen más? → *screening*
+2. ¿**Dónde** fijarlos para optimizar?
+3. ¿Cómo reducir la **variabilidad**?
+4. ¿Cómo hacer el proceso **robusto** al ruido?
+
+## Experimental vs. Observacional
+
+|  | **Experimental** | **Observacional** |
+|---|---|---|
+| Asignación | El investigador **asigna** tratamientos | Se observa lo que ocurre |
+| Control de confusores | Por **diseño** (aleatorización) | Solo a posteriori |
+| Conclusión | **Causal** ($x$ *causa* $y$) | Asociación ($x$ *se relaciona con* $y$) |
+| Ejemplo | 3 dietas asignadas al azar a cerdos | Encuesta de dietas que la gente ya sigue |
+
+<br>
+
+> **Clave:** la asignación aleatoria es lo que permite afirmaciones causales.
+
+## Los Tres Principios Básicos {.principios}
+
+::: {.columns}
+
+::: {.column width="31%" .box-blue}
+### 🎲 Aleatorización
+Asignar al azar el **orden** de las corridas y la **asignación** a tratamientos.
+
+**Por qué:** distribuye los efectos de variables desconocidas; valida la independencia estadística.
+
+*Block what you can, **randomize** what you cannot.*
+:::
+
+::: {.column width="31%" .box-green}
+### 🔁 Replicación
+Repetición **independiente** de cada tratamiento.
+
+**Por qué:** estima el error experimental $\sigma^2$; mejora la precisión ($\text{SE} = \sigma/\sqrt{n}$).
+
+⚠️ Réplica ≠ medición repetida de la misma unidad.
+:::
+
+::: {.column width="31%" .box-yellow}
+### 🧱 Bloqueo
+Agrupar unidades en bloques **homogéneos** para controlar una fuente de variabilidad conocida.
+
+**Por qué:** aísla esa variabilidad del error; aumenta precisión.
+
+***Block** what you can, randomize what you cannot.*
+:::
+
+:::
+
+## Vocabulario Esencial {.smaller}
+
+| Término | Definición |
+|---|---|
+| **Factor** | Variable de entrada estudiada (catalizador, temperatura) |
+| **Nivel** | Cada valor o categoría del factor (A, B, C; 150 °C, 180 °C) |
+| **Tratamiento** | Combinación específica de niveles |
+| **Unidad experimental** | Objeto al que se aplica un tratamiento (probeta, lote) |
+| **Respuesta** $y$ | Variable medida que se quiere explicar |
+| **Réplica** | Repetición *independiente* de un tratamiento |
+| **Error experimental** | Variación entre unidades tratadas igual — el "ruido" |
+| **Efecto** | Cambio en la respuesta al cambiar el nivel de un factor |
+
+## Estrategia de Experimentación {.smaller}
+
+::: {.columns}
+
+::: {.column width="50%"}
+### ❌ Enfoques limitados
+
+**Prueba y error** sin plan: sin conclusiones objetivas.
+
+**Un factor a la vez (OFAT):**
+
+- No detecta **interacciones** entre factores
+- Es ineficiente (usa más corridas para menos información)
+
+### ✅ El estándar: diseños factoriales
+
+Todos los factores se varían **conjuntamente**.
+→ Detecta interacciones.
+→ Máxima eficiencia en el uso de datos.
+:::
+
+::: {.column width="50%"}
+### Guía en 7 pasos *(Montgomery)*
+
+1. Reconocer y plantear el problema
+2. Seleccionar la variable de respuesta
+3. Elegir factores, niveles y rangos
+4. Elegir el diseño experimental
+5. Realizar el experimento
+6. Analizar estadísticamente los datos
+7. Conclusiones y corridas de **confirmación**
+:::
+
+:::
+
+## {background-color="#1a365d" .center}
+
+[Parte 2]{.parte-numero}
+
+[Inferencia Aplicada]{.parte-titulo}
+
+## Prueba de Hipótesis
+
+**Hipótesis nula** $H_0$: afirmación de "no efecto" ($\mu_1 = \mu_2$)
+
+**Hipótesis alternativa** $H_1$: lo que se quiere demostrar ($\mu_1 \neq \mu_2$)
+
+### Los dos tipos de error
+
+| Decisión \ Realidad | $H_0$ verdadera | $H_0$ falsa |
+|---|---|---|
+| **No rechazar** $H_0$ | Correcto $(1-\alpha)$ | **Error tipo II** $(\beta)$ |
+| **Rechazar** $H_0$ | **Error tipo I** $(\alpha)$ | Correcto: **Potencia** $(1-\beta)$ |
+
+<br>
+
+- $\alpha$ = nivel de significancia (fijado por el experimentador, usualmente 0.05)
+- **Potencia** $= 1 - \beta$: probabilidad de detectar un efecto real → **queremos maximizarla**
+
+## Potencia y Tamaño de Muestra
+
+::: {.columns}
+
+::: {.column width="50%"}
+### Error estándar de la media
+
+$$\text{SE}(\bar{y}) = \frac{\sigma}{\sqrt{n}}$$
+
+Con más réplicas $n$:
+
+- Mayor precisión de las estimaciones
+- Mayor **potencia** para detectar diferencias
+:::
+
+::: {.column width="50%"}
+### Para calcular $n$
+
+Se necesita especificar:
+
+1. Nivel de significancia $\alpha$ (típico: 0.05)
+2. Potencia deseada $1-\beta$ (típico: 0.80 o 0.90)
+3. Diferencia mínima detectable $\delta$
+4. Estimación de $\sigma$ (piloto o literatura)
+
+> En R: `power.anova.test()`
+> En Python: `statsmodels.stats.power`
+:::
+
+:::
+
+## {background-color="#1a365d" .center}
+
+[Parte 3]{.parte-numero}
+
+[ANOVA de Una Vía]{.parte-titulo}
+
+## El Problema del ANOVA
+
+Tenemos **un factor** con $a$ niveles y $n$ réplicas por nivel. Total: $N = an$.
+
+**¿Por qué no pruebas $t$ por pares?**
+
+Con $a=5$ tratamientos hay $\binom{5}{2}=10$ parejas. Tomando $\alpha_{PC}=0.05$:
+
+$$\alpha_{EF} = 1 - (1-0.05)^{10} \approx 0.40 \quad \text{¡40\% de falsa alarma!}$$
+
+El **ANOVA** responde con una **sola prueba global**:
+
+$$H_0:\ \mu_1 = \mu_2 = \cdots = \mu_a \qquad \text{vs.} \qquad H_1:\ \text{al menos un } \mu_i \text{ difiere}$$
+
+## El Modelo de Efectos
+
+$$y_{ij} = \mu + \tau_i + \varepsilon_{ij}, \qquad i=1,\dots,a; \quad j=1,\dots,n$$
+
+| Símbolo | Significado |
+|---|---|
+| $\mu$ | Media global |
+| $\tau_i$ | Efecto del tratamiento $i$ (con $\sum_i \tau_i = 0$) |
+| $\varepsilon_{ij}$ | Error aleatorio: $\varepsilon_{ij} \sim N(0, \sigma^2)$ independientes |
+
+<br>
+
+**Efectos fijos:** los $a$ niveles son los únicos de interés (elegidos deliberadamente).
+
+## Descomposición de la Variabilidad
+
+$$\underbrace{\sum_i\sum_j(y_{ij}-\bar{y}_{..})^2}_{SC_T} = \underbrace{n\sum_i(\bar{y}_{i.}-\bar{y}_{..})^2}_{SC_{\text{Trat}}} + \underbrace{\sum_i\sum_j(y_{ij}-\bar{y}_{i.})^2}_{SC_E}$$
+
+| Fuente | SC | g.l. | CM | $F_0$ |
+|---|---|---|---|---|
+| Tratamientos | $SC_{\text{Trat}}$ | $a-1$ | $CM_{\text{Trat}}$ | $CM_{\text{Trat}}/CM_E$ |
+| Error | $SC_E$ | $N-a$ | $CM_E$ | |
+| **Total** | $SC_T$ | $N-1$ | | |
+
+<br>
+
+Se rechaza $H_0$ cuando $F_0 > F_{\alpha,\,a-1,\,N-a}$ (o $p\text{-valor} \leq \alpha$).
+
+**Medida de efecto:** $R^2 = SC_{\text{Trat}} / SC_T$
+
+## Supuestos y Análisis de Residuales {.smaller}
+
+Los residuales son $e_{ij} = y_{ij} - \bar{y}_{i.}$
+
+| Supuesto | Gráfica | Qué buscar | Prueba formal |
+|---|---|---|---|
+| **Normalidad** | Q-Q plot | Puntos alineados | Shapiro-Wilk |
+| **Homocedasticidad** | Residuales vs. ajustados | Nube sin embudo | Levene / Bartlett |
+| **Independencia** | Residuales vs. orden | Sin tendencias | Durbin-Watson |
+
+<br>
+
+### Señales de alarma
+
+- **Embudo** → heterocedasticidad → transformar (raíz, log, Box-Cox)
+- **Curva en Q-Q** → no normalidad → transformar o Kruskal-Wallis
+- **Tendencia vs. orden** → no independencia → aleatorizar mejor
+
+> ⚠️ Nunca interpretes la tabla ANOVA sin antes mirar los residuales.
+
+## {background-color="#1a365d" .center}
+
+[Parte 4]{.parte-numero}
+
+[Comparaciones Múltiples]{.parte-titulo}
+
+## Tukey HSD
+
+Pensado para comparar **todas las parejas** de medias controlando $\alpha_{EF}$.
+
+Dos medias $\bar{y}_{i.}$ y $\bar{y}_{j.}$ son significativamente distintas si:
+
+$$|\bar{y}_{i.} - \bar{y}_{j.}| > T_\alpha = q_{\alpha,\,a,\,N-a}\sqrt{\frac{CM_E}{n}}$$
+
+donde $q_{\alpha,\,a,\,N-a}$ es el cuantil de la distribución del **rango studentizado**.
+
+| Característica | Detalle |
+|---|---|
+| Controla | $\alpha_{EF}$ exactamente |
+| Usa | Distribución del rango studentizado |
+| Cuándo | Comparar **todas** las parejas |
+| Requiere | Diseño **balanceado** ($n$ iguales) |
+
+## Dunnett
+
+Pensado para comparar **$a-1$ tratamientos vs. un control** (no todas las parejas).
+
+$$|\bar{y}_{i.} - \bar{y}_{1.}| > D_\alpha = d_{\alpha,\,a-1,\,N-a}\sqrt{CM_E\left(\frac{1}{n_i}+\frac{1}{n_1}\right)}$$
+
+donde $d_{\alpha,\,a-1,\,N-a}$ es el cuantil de la distribución de Dunnett.
+
+| | **Tukey** | **Dunnett** |
+|---|---|---|
+| Comparaciones | Todas las parejas | Cada trat. vs. control |
+| # de pruebas | $a(a-1)/2$ | $a-1$ |
+| Potencia | Menor (más comparaciones) | **Mayor** (menos comparaciones) |
+| Cuándo usar | Sin control claro | Hay un grupo control |
+
+## 🔵 Opcional: No Paramétricas y Transformaciones
+
+### Transformaciones de Box-Cox
+
+$$y^{(\lambda)} = \begin{cases} (y^\lambda - 1)/\lambda & \lambda \neq 0 \\ \ln y & \lambda = 0 \end{cases}$$
+
+Valores típicos: $\lambda=1$ (sin transformar), $\lambda=0.5$ (raíz), $\lambda=0$ (log), $\lambda=-1$ (recíproco).
+
+### Kruskal-Wallis (alternativa no paramétrica)
+
+Reemplaza los datos por sus **rangos** y prueba si las distribuciones son iguales.
+
+- No requiere normalidad
+- Menos potente que ANOVA cuando los supuestos se cumplen
+- Útil con datos ordinales o distribuciones muy asimétricas
+
+## Flujo de Trabajo — Resumen {.smaller}
+
+```
+1. Plantear modelo e hipótesis (H₀: τᵢ = 0)
+       ↓
+2. Ajustar ANOVA → tabla F
+       ↓
+3. Analizar residuales (Q-Q, residuales vs. ajustados, vs. orden)
+       ↓
+4. ¿Supuestos ok?
+   No → transformar (Box-Cox) o usar Kruskal-Wallis
+   Sí → interpretar F₀ y valor-p
+       ↓
+5. ¿Rechazar H₀?
+   Sí → comparaciones múltiples (Tukey o Dunnett)
+       ↓
+6. Reportar R², medias con IC, conclusiones prácticas
+       ↓
+7. Corridas de confirmación
+```
+
+## Resumen Semana 1 {.smaller .center}
+
+| Concepto | Lo esencial |
+|---|---|
+| Diseño de experimentos | Planear pruebas para conclusiones válidas |
+| Tres principios | Aleatorizar, replicar, bloquear |
+| ANOVA | Una prueba global; descompone $SC_T = SC_{\text{Trat}} + SC_E$ |
+| Prueba F | $F_0 = CM_{\text{Trat}}/CM_E$; rechazar si $> F_{\alpha,a-1,N-a}$ |
+| Residuales | Verificar normalidad, homocedasticidad, independencia |
+| Comparaciones | Tukey (todas las parejas), Dunnett (vs. control) |
+
+<br>
+
+**Próxima semana:** bloqueo (DBCA) y diseños factoriales de dos o más factores.
+
+## Referencias {.center}
+
+- Montgomery, D. C. *Design and Analysis of Experiments*, caps. 1–4.
+- Gutiérrez Pulido & de la Vara Salazar, *Análisis y Diseño de Experimentos*, caps. 1–4.
+- Notebooks: `semana-1-fundamentos/notebooks/`
+- Datos de práctica: `semana-1-fundamentos/datos/`

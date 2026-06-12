@@ -6,13 +6,17 @@
     "semana-2": "slidev semana-2/slides.md",
     "semana-3": "slidev semana-3/slides.md",
     "semana-4": "slidev semana-4/slides.md",
-    "build:1": "slidev build semana-1/slides.md --out ../dist/semana-1",
-    "build:2": "slidev build semana-2/slides.md --out ../dist/semana-2",
-    "build:3": "slidev build semana-3/slides.md --out ../dist/semana-3",
-    "build:4": "slidev build semana-4/slides.md --out ../dist/semana-4"
+    "serve": "npx serve ../dist",
+    "build:1": "slidev build semana-1/slides.md --out ../dist/semana-1 --base ./",
+    "build:2": "slidev build semana-2/slides.md --out ../dist/semana-2 --base ./",
+    "build:3": "slidev build semana-3/slides.md --out ../dist/semana-3 --base ./",
+    "build:4": "slidev build semana-4/slides.md --out ../dist/semana-4 --base ./"
   },
   "dependencies": {
     "@slidev/cli": "^0.49.0",
     "@slidev/theme-seriph": "^0.25.0"
+  },
+  "devDependencies": {
+    "playwright-chromium": "^1.60.0"
   }
 }
