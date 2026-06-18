@@ -54,6 +54,10 @@ La prueba de interés es $F = CM_{\text{Trat}}/CM_E$. La limitación es que los 
 libertad del error son **pocos** cuando $p$ es pequeño (con $p=3$ solo quedan 2),
 restando potencia; suelen replicarse varios cuadrados latinos.
 
+> **Ejemplo (df).** Para el cuadrado $4\times4$ de arriba ($p=4$): filas, columnas y
+> tratamientos tienen $p-1=3$ g.l. cada uno, el error $(p-1)(p-2)=6$ y el total $p^2-1=15$.
+> Solo quedan **6 g.l. para el error**: por eso con $p$ pequeño suele replicarse el cuadrado.
+
 > **Cuadrado grecolatino:** extensión que bloquea **tres** direcciones superponiendo dos
 > cuadrados latinos ortogonales (letras latinas + griegas).
 
@@ -78,6 +82,11 @@ Parámetros ($a$ tratamientos, $b$ bloques de tamaño $k$, cada tratamiento en $
 $$
 \lambda = \frac{r(k-1)}{a-1}, \qquad a r = b k .
 $$
+
+> **Ejemplo.** Con $a=4$ tratamientos en $b=4$ bloques de tamaño $k=3$, cada tratamiento
+> aparece en $r=3$ bloques: $\lambda = r(k-1)/(a-1) = 3\cdot2/3 = 2$ (cada par de
+> tratamientos coincide en 2 bloques) y se cumple $ar = bk \Rightarrow 12 = 12$. El balance
+> queda garantizado pese a que ningún bloque contenga los 4 tratamientos.
 
 ## 3. Efectos aleatorios y mixtos
 

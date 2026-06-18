@@ -31,8 +31,8 @@ distinguiendo efectos principales de interacciones.
 
 | # | Notebook | Contenido |
 |---|----------|-----------|
-| 01 | `notebooks/01-dbca_{py\|r}.ipynb` | DBCA, supuestos y eficiencia del bloqueo |
-| 02 | `notebooks/02-factorial-dos-vias_{py\|r}.ipynb` | Factorial 2 factores, interacción y ANOVA de dos vías |
+| 01 | `notebooks/01-dbca_{py\|r}.ipynb` | DBCA, supuestos y eficiencia del bloqueo; + ejemplos: ensayo clínico, costo de no bloquear y prueba de no aditividad |
+| 02 | `notebooks/02-factorial-dos-vias_{py\|r}.ipynb` | Factorial 2 factores, interacción y ANOVA de dos vías; + ejemplos: caso aditivo, interacción de cruce y cálculo manual de un 2×2 |
 
 ### Datos
 
@@ -42,6 +42,7 @@ distinguiendo efectos principales de interacciones.
 | [`datos/vida-bateria.csv`](datos/vida-bateria.csv) | Factorial 3×3: vida de batería por material y temperatura; Montgomery 5.3 | `material`, `temperatura`, `vida` |
 | [`datos/rendimiento-fertilizante.csv`](datos/rendimiento-fertilizante.csv) | DBCA del ejercicio 01 (fertilizante × parcela) | `fertilizante`, `parcela`, `rendimiento` |
 | [`datos/conversion-catalizador.csv`](datos/conversion-catalizador.csv) | Factorial 2×3 del ejercicio 02 (catalizador × concentración) | `catalizador`, `concentracion`, `conversion` |
+| [`datos/rendimiento-combustible.csv`](datos/rendimiento-combustible.csv) | Cuadrado latino 4×4 del ejercicio 03 (combustible × conductor × coche) | `conductor`, `coche`, `combustible`, `rendimiento` |
 
 ### Ejercicios
 
@@ -49,6 +50,7 @@ distinguiendo efectos principales de interacciones.
 |---|-----------|----------|
 | 01 | [`ejercicios/ej01-dbca.md`](ejercicios/ej01-dbca.md) | [`ej01-dbca-sol.md`](ejercicios/ej01-dbca-sol.md) |
 | 02 | [`ejercicios/ej02-factorial.md`](ejercicios/ej02-factorial.md) | [`ej02-factorial-sol.md`](ejercicios/ej02-factorial-sol.md) |
+| 03 🔵 | [`ejercicios/ej03-cuadrado-latino.md`](ejercicios/ej03-cuadrado-latino.md) | [`ej03-cuadrado-latino-sol.md`](ejercicios/ej03-cuadrado-latino-sol.md) |
 
 ### Taller
 

@@ -37,6 +37,10 @@ bloquear?
 
 **f)** Aplica Tukey sobre los fertilizantes. ¿Cuál recomendarías? Acompaña con las medias.
 
+**g)** Reanaliza los datos **ignorando el bloque** (un ANOVA de una vía, como si fuera un
+DCA). ¿Cómo cambian $F$ y el valor-p del fertilizante? Conecta el resultado con la
+eficiencia relativa del inciso (e).
+
 ---
 
 > Solución en [`ej01-dbca-sol.md`](ej01-dbca-sol.md).

@@ -80,6 +80,26 @@ promedio de $A$" oculta que $A$ ayuda en un nivel de $B$ y perjudica en otro. La
 > de los factores involucrados se interpretan con cautela (o no se interpretan por
 > separado).
 
+### 3.3 Ejemplo numérico
+
+Un proceso se corre en un factorial $2\times2$: factor $A$ = **temperatura** (bajo $-$, alto $+$) y $B$ = **tiempo** (bajo $-$, alto $+$). Respuestas medias por celda (rendimiento, %):
+
+| | $B-$ | $B+$ |
+|---|---|---|
+| $A-$ | 30 | 35 |
+| $A+$ | 40 | 55 |
+
+$$
+\text{Efecto }A=\frac{(40+55)-(30+35)}{2}=15,\qquad
+\text{Efecto }B=\frac{(35+55)-(30+40)}{2}=10,
+$$
+
+$$
+\text{Interacción }AB=\frac{(55-35)-(40-30)}{2}=\frac{20-10}{2}=5.
+$$
+
+El efecto de $A$ vale $40-30=10$ cuando $B$ es bajo, pero $55-35=20$ cuando $B$ es alto: como **difieren**, hay interacción ($AB=5\neq0$). Subir ambos factores a la vez (celda $++=55$) rinde más que lo que predeciría sumar los efectos por separado: es una **sinergia**. En la gráfica de interacción, las líneas $A-$ y $A+$ **divergen**.
+
 ## 4. Notación y generalización
 
 - Un factorial con factores $A, B, C, \dots$ se denota por el producto de sus niveles:

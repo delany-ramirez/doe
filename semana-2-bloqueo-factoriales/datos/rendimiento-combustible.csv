@@ -1,0 +1,17 @@
+conductor,coche,combustible,rendimiento
+Cond1,Coche1,A,14
+Cond1,Coche2,B,14
+Cond1,Coche3,C,12
+Cond1,Coche4,D,14
+Cond2,Coche1,B,15
+Cond2,Coche2,C,18
+Cond2,Coche3,D,11
+Cond2,Coche4,A,18
+Cond3,Coche1,C,13
+Cond3,Coche2,D,11
+Cond3,Coche3,A,12
+Cond3,Coche4,B,14
+Cond4,Coche1,D,12
+Cond4,Coche2,A,15
+Cond4,Coche3,B,11
+Cond4,Coche4,C,20

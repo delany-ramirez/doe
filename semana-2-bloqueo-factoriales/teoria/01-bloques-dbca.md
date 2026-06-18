@@ -129,6 +129,50 @@ $$
 > **Regla práctica.** Si **sospechas** que una fuente de variabilidad importa, bloquéala:
 > el costo (perder algunos g.l.) es pequeño frente al beneficio si la sospecha es cierta.
 
+## Ejemplo numérico resuelto
+
+Tiempos de **secado** (min) de **tres pinturas** (tratamiento, $a=3$) medidos en **cuatro días** (bloque, $b=4$); un dato por celda:
+
+| Pintura | D1 | D2 | D3 | D4 | $\bar y_{i\cdot}$ |
+|---|---|---|---|---|---|
+| P1 | 25 | 27 | 27 | 21 | 25.00 |
+| P2 | 21 | 24 | 22 | 17 | 21.00 |
+| P3 | 31 | 34 | 31 | 29 | 31.25 |
+| $\bar y_{\cdot j}$ | 25.67 | 28.33 | 26.67 | 22.33 | $\bar y_{\cdot\cdot}=25.75$ |
+
+**Sumas de cuadrados.**
+
+$$
+SC_{\text{Trat}} = b\sum_i(\bar y_{i\cdot}-\bar y_{\cdot\cdot})^2
+= 4\big[(25-25.75)^2+(21-25.75)^2+(31.25-25.75)^2\big] = 213.50,
+$$
+
+$$
+SC_{\text{Bloq}} = a\sum_j(\bar y_{\cdot j}-\bar y_{\cdot\cdot})^2 = 57.58,
+\qquad SC_T = 276.25,
+\qquad SC_E = 276.25-213.50-57.58 = 5.17.
+$$
+
+**Tabla ANOVA.**
+
+| Fuente | SC | g.l. | CM | $F_0$ | valor-p |
+|---|---|---|---|---|---|
+| Pintura (trat.) | 213.50 | 2 | 106.75 | 124.0 | $\approx10^{-5}$ |
+| Día (bloque) | 57.58 | 3 | 19.19 | 22.3 | 0.0012 |
+| Error | 5.17 | 6 | 0.861 | | |
+| **Total** | 276.25 | 11 | | | |
+
+La pintura afecta el tiempo de secado ($p\approx10^{-5}$): **P2** seca más rápido (21 min) y **P3** es la más lenta (31.25). Los días también difieren ($p\approx0.001$): hubo variación ambiental que valió la pena aislar del error.
+
+**Eficiencia relativa.**
+
+$$
+ER=\frac{(b-1)CM_{\text{Bloq}}+b(a-1)CM_E}{(ab-1)CM_E}
+=\frac{3(19.19)+4(2)(0.861)}{11(0.861)}\approx 6.8.
+$$
+
+Bloquear por día equivalió a multiplicar por ~7 las réplicas que habría exigido un DCA para la misma precisión: el bloqueo fue muy rentable.
+
 ## 8. Datos faltantes
 
 Si se pierde una observación, el diseño deja de estar balanceado. Se puede **estimar el

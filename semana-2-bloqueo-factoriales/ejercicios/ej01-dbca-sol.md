@@ -64,3 +64,20 @@ Medias por fertilizante:
 Con $CM_E=1.21$ muy pequeño, las diferencias entre medias son nítidas: **F2** rinde
 significativamente más que todos los demás (≈ 3 ton/ha sobre F3, el segundo). Se
 recomienda **F2**, idealmente con una corrida de confirmación.
+
+## g) Ignorar el bloque
+
+Al ajustar el ANOVA de una vía `rendimiento ~ fertilizante` (sin parcela), la suma de
+cuadrados de las parcelas ($172.3$) ya no se aísla y **engrosa el error**: $SC_E$ pasa de
+$14.5$ a $186.8$. El estadístico del fertilizante cae de $F\approx50.7$ a $F\approx5.25$
+(valor-p de $<10^{-6}$ a $\approx0.010$).
+
+| Análisis | $SC_E$ | g.l. error | $F$ fertilizante | valor-p |
+|---|---|---|---|---|
+| DBCA (con bloque) | 14.50 | 12 | 50.69 | $<10^{-6}$ |
+| DCA (sin bloque) | 186.80 | 16 | 5.25 | 0.010 |
+
+Aquí el efecto sigue siendo significativo, pero la potencia se desploma; con un efecto más
+débil podría haberse vuelto no significativo. Esta pérdida es justo lo que cuantifica la
+eficiencia relativa $ER\approx8.3$ del inciso (e): **bloquear preservó la precisión** que un
+DCA habría diluido.

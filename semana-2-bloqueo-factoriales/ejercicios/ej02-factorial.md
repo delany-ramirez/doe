@@ -39,6 +39,11 @@ qué implica?
 **f)** Da una recomendación de proceso: ¿qué combinación catalizador–concentración
 maximiza la conversión?
 
+**g)** Calcula las **medias marginales**: la conversión media de cada catalizador
+(promediando concentración) y la de cada concentración (promediando catalizador). El
+"efecto principal" sugiere que un catalizador es mejor *en promedio*; explica por qué, dada
+la interacción significativa, esa conclusión puede inducir a error.
+
 ---
 
 > Solución en [`ej02-factorial-sol.md`](ej02-factorial-sol.md).

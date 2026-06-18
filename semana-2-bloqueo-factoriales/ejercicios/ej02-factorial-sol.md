@@ -60,3 +60,17 @@ La **máxima conversión** (50 %) se obtiene con **catalizador A a concentració
 Aunque B parte más alto en concentraciones bajas, A escala mejor y supera a B en el
 extremo alto. Recomendación: operar con **A al 30 %**, confirmando con corridas
 adicionales en esa región.
+
+## g) Medias marginales y por qué engañan
+
+Medias marginales (a partir de las medias de celda):
+
+- **Por catalizador:** A $=(40+46+50)/3=45.3$; B $=(44+48+49)/3=47.0$.
+- **Por concentración:** 10 % $=(40+44)/2=42$; 20 % $=(46+48)/2=47$; 30 % $=(50+49)/2=49.5$.
+
+Mirando solo el efecto principal del catalizador se concluiría que **B es mejor**
+($47.0>45.3$). Pero esa media **promedia sobre la concentración** y, como la interacción es
+significativa, oculta que el orden **se invierte** según el nivel: B gana en 10–20 %, pero
+**A gana en 30 %** (50 vs. 49), justo donde está el óptimo. Por eso, con interacción
+significativa, las medias marginales no deben interpretarse aisladas: la decisión correcta
+se toma sobre las **celdas**, no sobre los promedios marginales.

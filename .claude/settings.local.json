@@ -2,7 +2,15 @@
   "permissions": {
     "allow": [
       "Bash(python3:*)",
-      "Bash(pip install:*)"
+      "Bash(pip install:*)",
+      "Bash(python *)",
+      "Bash(Rscript C:/Users/delram/Documents/Proyectos/courses/doe/_gen/_run01.R)",
+      "Bash(Rscript _gen/_run02.R)",
+      "Bash(Rscript ../../_gen/_run02.R)",
+      "Bash(grep -vE \"Aviso|package|built under|^ *[0-9]+:|^In |^$\")",
+      "Bash(Rscript ../../_gen/_rmd01.R)",
+      "Bash(grep -vE \"Aviso|package|built|^ *[0-9]+:|^In |^$\")",
+      "Bash(Rscript ../../_gen/_rmd02.R)"
     ]
   }
 }

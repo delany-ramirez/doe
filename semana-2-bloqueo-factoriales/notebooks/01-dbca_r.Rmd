@@ -92,3 +92,77 @@ $ER>1$: el bloqueo mejoró la precisión.
 - El bloqueo por lote fue eficaz.
 
 > Equivalente en Python: [`01-dbca_py.ipynb`](01-dbca_py.ipynb).
+
+---
+
+## Ejemplo 2 — Otro dominio: ensayo clínico bloqueado por paciente
+
+Cuatro **fármacos** antihipertensivos (A–D); respuesta: **reducción de presión arterial** (mmHg). Cada **paciente** es un **bloque** (los 4 fármacos se prueban en los 6 pacientes). Bloquear por paciente aísla la enorme variabilidad entre personas.
+
+```{r clin-datos}
+celdas <- list(A = c(7, 11, 18, 9, 16, 20), B = c(13, 18, 23, 15, 22, 26),
+               C = c(8, 16, 21, 13, 18, 23), D = c(5, 9, 16, 8, 12, 20))
+clin <- do.call(rbind, lapply(names(celdas), function(d)
+    data.frame(farmaco = d, paciente = paste0('P', 1:6), reduccion = celdas[[d]])))
+clin$farmaco <- factor(clin$farmaco); clin$paciente <- factor(clin$paciente)
+with(clin, tapply(reduccion, list(farmaco, paciente), mean))
+```
+
+```{r clin-boxplots}
+op <- par(mfrow = c(1, 2))
+boxplot(reduccion ~ farmaco, data = clin, main = 'Por fármaco', col = 'lightsteelblue')
+boxplot(reduccion ~ paciente, data = clin, main = 'Por paciente (bloque)', col = 'lightgreen')
+par(op)
+```
+
+```{r clin-anova}
+mod_clin <- aov(reduccion ~ farmaco + paciente, data = clin)
+summary(mod_clin)
+```
+
+Ambos efectos **altamente significativos**: fármaco $F\approx81$ ($p<10^{-8}$) y paciente $F\approx126$ ($p<10^{-10}$). El bloque tan significativo confirma que los pacientes difieren mucho y que bloquear era imprescindible.
+
+```{r clin-er}
+s <- summary(mod_clin)[[1]]
+a <- nlevels(clin$farmaco); b <- nlevels(clin$paciente)
+CME <- s['Residuals', 'Mean Sq']; CMB <- s['paciente', 'Mean Sq']
+ER <- ((b - 1) * CMB + b * (a - 1) * CME) / ((a * b - 1) * CME)
+cat('Eficiencia relativa DBCA vs. DCA =', round(ER, 1), '\n')
+```
+
+$ER\approx28$: un DCA habría necesitado del orden de **28 veces más sujetos** para igualar esta precisión.
+
+```{r clin-tukey}
+TukeyHSD(mod_clin, 'farmaco')
+```
+
+`TukeyHSD` sobre el modelo con bloque usa correctamente el $CM_E$ del DBCA. Todas las parejas difieren (incluso la menor, A–D): **B** logra la mayor reducción (19.5 mmHg) y es el fármaco recomendado.
+
+## Ejemplo 3 — El costo de ignorar el bloque
+
+Reanalizamos **los mismos datos** del Ejemplo 2 con un **ANOVA de una vía** (DCA), sin el término de bloque, para ver qué se pierde.
+
+```{r dca}
+mod_dca <- aov(reduccion ~ farmaco, data = clin)
+summary(mod_dca)
+```
+
+Al ignorar el bloque, la variabilidad entre pacientes se queda **en el error**: el estadístico del fármaco cae de $F\approx81$ a $F\approx2.5$ y su valor-p sube a $\approx0.09$. **El efecto del fármaco, clarísimo en el DBCA, se vuelve no significativo** — justo la pérdida de potencia que mide la eficiencia relativa.
+
+## Ejemplo 4 — Chequeo de la aditividad: prueba de no aditividad de Tukey
+
+El DBCA supone **aditividad**. La **prueba de no aditividad de Tukey** (1 g.l.) detecta su forma más simple. La aplicamos a los datos de **extrusión** del inicio (`df`, modelo `modelo`).
+
+```{r no-aditividad}
+gm <- mean(df$rendimiento)
+ri <- tapply(df$rendimiento, df$presion, mean) - gm     # efectos de tratamiento
+cj <- tapply(df$rendimiento, df$lote, mean) - gm        # efectos de bloque
+num <- sum(df$rendimiento * ri[as.character(df$presion)] * cj[as.character(df$lote)])^2
+SS_N <- num / (sum(ri^2) * sum(cj^2))                   # SC de no aditividad (1 g.l.)
+SSE <- sum(residuals(modelo)^2); dfE <- df.residual(modelo)
+F_N <- (SS_N / 1) / ((SSE - SS_N) / (dfE - 1))
+p_N <- pf(F_N, 1, dfE - 1, lower.tail = FALSE)
+cat('SC no aditividad =', round(SS_N, 3), ' F =', round(F_N, 3), ' p =', round(p_N, 3), '\n')
+```
+
+$p\approx0.88$: **no se rechaza** la aditividad. El modelo aditivo del DBCA es adecuado para estos datos.

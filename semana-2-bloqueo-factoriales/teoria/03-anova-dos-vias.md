@@ -86,6 +86,27 @@ El **orden** del análisis es crucial:
 
 > **Regla de oro.** Mira la interacción **antes** que los efectos principales.
 
+## Ejemplo resuelto: aplicar la estrategia
+
+Resistencia de un material según un **aditivo** ($A$: No/Sí) y la **temperatura** de curado ($B$: Baja/Media/Alta), factorial $2\times3$ con $n=3$ réplicas ($N=18$). Medias de celda:
+
+| | Baja | Media | Alta |
+|---|---|---|---|
+| Sin aditivo | 29 | 35 | 40 |
+| Con aditivo | 34 | 38 | 43 |
+
+Tabla ANOVA:
+
+| Fuente | SC | g.l. | CM | $F_0$ | valor-p |
+|---|---|---|---|---|---|
+| Aditivo $A$ | 60.5 | 1 | 60.50 | 60.5 | $<0.001$ |
+| Temperatura $B$ | 300.0 | 2 | 150.00 | 150.0 | $<0.001$ |
+| Interacción $AB$ | 4.0 | 2 | 2.00 | 2.0 | 0.178 |
+| Error | 12.0 | 12 | 1.00 | | |
+| **Total** | 376.5 | 17 | | | |
+
+**La estrategia en acción.** Se prueba **primero la interacción**: $p\approx0.18$, **no significativa**. El modelo es esencialmente **aditivo**, así que se interpretan los efectos principales directamente, y ambos son muy significativos. El aditivo sube la resistencia $\approx3$ unidades **en todas** las temperaturas (efecto aproximadamente constante = sin interacción), y la resistencia crece de forma marcada con la temperatura. Recomendación simple y separable: **usar el aditivo y curar a temperatura alta**. (Compárese con el factorial de la batería en el notebook, donde la interacción **sí** es significativa y la elección del material depende de la temperatura.)
+
 ## 6. Supuestos y diagnóstico
 
 Idénticos al ANOVA de una vía, verificados sobre los residuales
