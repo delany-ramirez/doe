@@ -10,8 +10,8 @@ output:
 
 ## Objetivos
 
-- Ajustar y analizar un DBCA (tratamiento + bloque).
-- Verificar supuestos y valorar la **eficiencia** del bloqueo.
+-   Ajustar y analizar un DBCA (tratamiento + bloque).
+-   Verificar supuestos y valorar la **eficiencia** del bloqueo.
 
 > Teoría: [`../teoria/01-bloques-dbca.md`](../teoria/01-bloques-dbca.md).
 
@@ -48,7 +48,7 @@ par(op)
 $y_{ij}=\mu+\tau_i+\beta_j+\varepsilon_{ij}$ (sin interacción).
 
 ```{r anova}
-modelo <- aov(rendimiento ~ presion + lote, data = df)
+modelo <- aov(rendimiento ~ presion, data = df)
 summary(modelo)
 ```
 
@@ -88,12 +88,12 @@ $ER>1$: el bloqueo mejoró la precisión.
 
 ## 6. Conclusiones
 
-- La presión afecta el rendimiento.
-- El bloqueo por lote fue eficaz.
+-   La presión afecta el rendimiento.
+-   El bloqueo por lote fue eficaz.
 
 > Equivalente en Python: [`01-dbca_py.ipynb`](01-dbca_py.ipynb).
 
----
+------------------------------------------------------------------------
 
 ## Ejemplo 2 — Otro dominio: ensayo clínico bloqueado por paciente
 

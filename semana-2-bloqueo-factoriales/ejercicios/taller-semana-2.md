@@ -112,5 +112,3 @@ Para cada escenario indica qué diseño usarías (DCA, DBCA, factorial) y justif
 
 ---
 
-> Solución en [`taller-semana-2-sol.md`](taller-semana-2-sol.md). Intenta resolverlo antes
-> de consultarla.
