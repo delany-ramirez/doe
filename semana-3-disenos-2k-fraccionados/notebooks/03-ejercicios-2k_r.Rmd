@@ -1,0 +1,333 @@
+---
+title: "03 · Ejercicios — Diseños 2^k completos"
+subtitle: "Semana 3 — Diseños 2^k y fraccionados"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    theme: flatly
+    highlight: tango
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE,
+                      fig.width = 10, fig.height = 5)
+options(scipen = 5, digits = 4)
+suppressMessages(library(car))
+```
+
+**Objetivos**
+
+- Analizar diseños $2^3$ con réplicas mediante ANOVA completo.
+- Usar la gráfica de probabilidad normal de efectos en diseños $2^4$ sin réplicas.
+- Ajustar modelos reducidos y encontrar condiciones óptimas.
+- Validar supuestos de normalidad y varianza constante.
+
+> Teoría: [../teoria/01-disenos-2k.md](../teoria/01-disenos-2k.md)
+> Equivalente en Python: [03-ejercicios-2k_py.ipynb](03-ejercicios-2k_py.ipynb)
+
+---
+
+## Ejercicio 1 · Rendimiento de reacción química ($2^3$ con réplicas)
+
+Un ingeniero estudia el **rendimiento (%)** de una reacción química. Tres factores a dos
+niveles con dos réplicas completas (16 corridas):
+
+| Factor | $-1$ | $+1$ |
+|--------|------|------|
+| temperatura (A) | 70 °C | 90 °C |
+| tiempo (B) | 30 min | 60 min |
+| catalizador (C) | 1 % | 2 % |
+
+### 1.1 Los datos
+
+```{r ej1-datos}
+df1 <- read.csv('../datos/reaccion-quimica-2k.csv')
+df1$temperatura <- factor(df1$temperatura)
+df1$tiempo      <- factor(df1$tiempo)
+df1$catalizador <- factor(df1$catalizador)
+cat("Dimensiones:", dim(df1), "\n")
+print(tapply(df1$rendimiento, list(df1$temperatura, df1$tiempo), mean))
+```
+
+### 1.2 Visualización
+
+```{r ej1-boxplots}
+op <- par(mfrow = c(1, 3))
+boxplot(rendimiento ~ temperatura, data = df1, main = "Por temperatura",
+        col = "lightsteelblue", ylab = "Rendimiento (%)")
+boxplot(rendimiento ~ tiempo, data = df1, main = "Por tiempo",
+        col = "lightsteelblue")
+boxplot(rendimiento ~ catalizador, data = df1, main = "Por catalizador",
+        col = "lightsteelblue")
+par(op)
+```
+
+### 1.3 ANOVA completo
+
+```{r ej1-anova}
+modelo1 <- aov(rendimiento ~ temperatura * tiempo * catalizador, data = df1)
+print(summary(modelo1))
+```
+
+**Interpretación:** `temperatura` (A), `tiempo` (B) y la interacción A×B son
+significativas. El catalizador (C) tiene un efecto significativo pero menor.
+
+### 1.4 Gráfica de interacción
+
+```{r ej1-interaccion}
+interaction.plot(
+    df1$tiempo, df1$temperatura, df1$rendimiento,
+    xlab = "Tiempo", ylab = "Rendimiento medio (%)",
+    main = "Interacción Temperatura × Tiempo",
+    col = c("steelblue", "tomato"), lwd = 2, lty = 1:2,
+    trace.label = "Temperatura"
+)
+```
+
+Las líneas **no son paralelas**: la interacción A×B es real. A temperatura alta, aumentar
+el tiempo incrementa mucho más el rendimiento.
+
+### 1.5 Modelo reducido y diagnósticos
+
+```{r ej1-reducido}
+modelo1r <- lm(rendimiento ~ temperatura + tiempo + catalizador + temperatura:tiempo,
+               data = df1)
+print(summary(modelo1r))
+cat("R2 =", round(summary(modelo1r)$r.squared, 4), "\n")
+```
+
+```{r ej1-diagnosticos}
+op <- par(mfrow = c(1, 2))
+qqnorm(residuals(modelo1r), main = "Q-Q residuales")
+qqline(residuals(modelo1r))
+plot(fitted(modelo1r), residuals(modelo1r),
+     xlab = "Valores ajustados", ylab = "Residuales",
+     main = "Residuales vs. ajustados")
+abline(h = 0, lty = 2)
+par(op)
+print(shapiro.test(residuals(modelo1r)))
+```
+
+---
+
+## Ejercicio 2 · Resistencia del papel ($2^4$ sin réplicas)
+
+Se estudia la **resistencia a la tracción (N/m)** del papel. Cuatro factores, 16 corridas
+sin réplicas. Sin réplicas no hay grados de libertad para el error: se usa la **gráfica
+de probabilidad normal de efectos** (método de Daniel).
+
+| Factor | $-1$ | $+1$ |
+|--------|------|------|
+| temperatura (A) | 60 °C | 80 °C |
+| humedad (B) | 40 % | 60 % |
+| velocidad (C) | 100 m/min | 150 m/min |
+| presion (D) | 2 bar | 4 bar |
+
+### 2.1 Los datos y los efectos
+
+```{r ej2-efectos}
+df2 <- read.csv('../datos/papel-resistencia-2k.csv')
+cat("Dimensiones:", dim(df2), "\n")
+
+modelo2 <- lm(resistencia ~ temperatura * humedad * velocidad * presion, data = df2)
+efectos2 <- coef(modelo2)[-1] * 2
+nombres2 <- c("A","B","C","D","AB","AC","AD","BC","BD","CD",
+              "ABC","ABD","ACD","BCD","ABCD")
+names(efectos2) <- nombres2
+cat("\nEfectos estimados (por magnitud):\n")
+print(round(sort(abs(efectos2), decreasing = TRUE), 2))
+```
+
+### 2.2 Gráfica de probabilidad normal de efectos (Daniel)
+
+```{r ej2-daniel}
+eff2 <- sort(efectos2)
+n2   <- length(eff2)
+z2   <- qnorm((seq_len(n2) - 0.5) / n2)
+
+plot(z2, eff2, pch = 16, col = "steelblue", cex = 1.2,
+     xlab = "Cuantiles normales", ylab = "Efecto estimado",
+     main = "Gráfica normal de efectos — Papel (Daniel)")
+abline(h = 0, lty = 2, col = "gray")
+text(z2, eff2, names(eff2), pos = 4, cex = 0.9)
+grid()
+```
+
+Los efectos que se alejan de la línea son los **activos**: A (temperatura), B (humedad),
+D (presión) y la interacción AD.
+
+### 2.3 Modelo reducido y diagnósticos
+
+```{r ej2-reducido}
+modelo2r <- lm(resistencia ~ temperatura + humedad + presion + temperatura:presion,
+               data = df2)
+print(summary(modelo2r))
+cat("R2 =", round(summary(modelo2r)$r.squared, 4), "\n")
+```
+
+```{r ej2-diagnosticos}
+op <- par(mfrow = c(1, 2))
+qqnorm(residuals(modelo2r), main = "Q-Q residuales - papel")
+qqline(residuals(modelo2r))
+plot(fitted(modelo2r), residuals(modelo2r),
+     xlab = "Ajustados", ylab = "Residuales",
+     main = "Residuales vs. ajustados")
+abline(h = 0, lty = 2)
+par(op)
+print(shapiro.test(residuals(modelo2r)))
+
+opt2 <- data.frame(temperatura = 1, humedad = -1, presion = 1)
+cat("\nPredicción óptima (A=+1, B=-1, D=+1):", predict(modelo2r, opt2), "N/m\n")
+```
+
+---
+
+## Ejercicio 3 · Grabado de semiconductores ($2^3$ con réplicas)
+
+Se estudia la **tasa de grabado (Å/min)** en un proceso de grabado de obleas de silicio.
+Tres factores, dos réplicas (16 corridas).
+
+| Factor | $-1$ | $+1$ |
+|--------|------|------|
+| potencia (A) | 100 W | 150 W |
+| presion_gas (B) | 0.8 Torr | 1.2 Torr |
+| temperatura (C) | 15 °C | 25 °C |
+
+### 3.1 Los datos
+
+```{r ej3-datos}
+df3 <- read.csv('../datos/microelectronica-2k.csv')
+df3$potencia    <- factor(df3$potencia)
+df3$presion_gas <- factor(df3$presion_gas)
+df3$temperatura <- factor(df3$temperatura)
+
+op <- par(mfrow = c(1, 3))
+boxplot(tasa_grabado ~ potencia, data = df3, main = "Por potencia",
+        col = "lightgreen", ylab = "Tasa grabado (Å/min)")
+boxplot(tasa_grabado ~ presion_gas, data = df3, main = "Por presión gas",
+        col = "lightgreen")
+boxplot(tasa_grabado ~ temperatura, data = df3, main = "Por temperatura",
+        col = "lightgreen")
+par(op)
+```
+
+### 3.2 ANOVA
+
+```{r ej3-anova}
+modelo3 <- aov(tasa_grabado ~ potencia * presion_gas * temperatura, data = df3)
+print(summary(modelo3))
+```
+
+### 3.3 Gráfica de interacción y optimización
+
+```{r ej3-interaccion}
+op <- par(mfrow = c(1, 2))
+interaction.plot(df3$temperatura, df3$potencia, df3$tasa_grabado,
+    xlab = "Temperatura", ylab = "Tasa media (Å/min)",
+    main = "Potencia × Temperatura",
+    col = c("steelblue","tomato"), lwd = 2, trace.label = "Potencia")
+
+interaction.plot(df3$potencia, df3$presion_gas, df3$tasa_grabado,
+    xlab = "Potencia", ylab = "Tasa media (Å/min)",
+    main = "Potencia × Presión gas",
+    col = c("steelblue","tomato"), lwd = 2, trace.label = "Presión")
+par(op)
+```
+
+```{r ej3-optimo}
+medias3 <- with(df3, tapply(tasa_grabado, list(potencia, presion_gas, temperatura), mean))
+cat("Media máxima:", max(medias3), "\n")
+cat("Índice de máxima:", which(medias3 == max(medias3), arr.ind = TRUE), "\n")
+```
+
+### 3.4 Modelo reducido y diagnósticos
+
+```{r ej3-reducido}
+modelo3r <- lm(tasa_grabado ~ potencia + presion_gas + temperatura + potencia:temperatura,
+               data = df3)
+cat("R2 =", round(summary(modelo3r)$r.squared, 4), "\n")
+
+op <- par(mfrow = c(1, 2))
+qqnorm(residuals(modelo3r), main = "Q-Q residuales - semiconductores")
+qqline(residuals(modelo3r))
+plot(fitted(modelo3r), residuals(modelo3r),
+     xlab = "Ajustados", ylab = "Residuales",
+     main = "Residuales vs. ajustados")
+abline(h = 0, lty = 2)
+par(op)
+print(shapiro.test(residuals(modelo3r)))
+```
+
+---
+
+## Ejercicio 4 · Densidad de espuma de poliuretano ($2^4$ sin réplicas)
+
+Se estudia la **densidad (kg/m³)** de espuma de poliuretano. Cuatro factores, sin réplicas
+(16 corridas). Se aplica el método de Daniel para identificar efectos activos.
+
+| Factor | $-1$ | $+1$ |
+|--------|------|------|
+| isocianato (A) | 45 PHR | 55 PHR |
+| poliol (B) | 100 PHR | 110 PHR |
+| temperatura (C) | 20 °C | 30 °C |
+| humedad (D) | 40 % | 60 % |
+
+### 4.1 Efectos y gráfica de Daniel
+
+```{r ej4-efectos}
+df4 <- read.csv('../datos/espuma-poliuretano-2k.csv')
+modelo4 <- lm(densidad ~ isocianato * poliol * temperatura * humedad, data = df4)
+efectos4 <- coef(modelo4)[-1] * 2
+nombres4 <- c("A","B","C","D","AB","AC","AD","BC","BD","CD",
+              "ABC","ABD","ACD","BCD","ABCD")
+names(efectos4) <- nombres4
+cat("Efectos por magnitud:\n")
+print(round(sort(abs(efectos4), decreasing = TRUE), 2))
+```
+
+```{r ej4-daniel}
+eff4 <- sort(efectos4)
+n4   <- length(eff4)
+z4   <- qnorm((seq_len(n4) - 0.5) / n4)
+
+plot(z4, eff4, pch = 16, col = "darkorange", cex = 1.2,
+     xlab = "Cuantiles normales", ylab = "Efecto estimado",
+     main = "Gráfica normal de efectos — Espuma poliuretano (Daniel)")
+abline(h = 0, lty = 2, col = "gray")
+text(z4, eff4, names(eff4), pos = 4, cex = 0.9)
+grid()
+```
+
+### 4.2 Modelo reducido y diagnósticos
+
+Efectos activos identificados: A, B, C, D y la interacción AC.
+
+```{r ej4-reducido}
+modelo4r <- lm(densidad ~ isocianato + poliol + temperatura + humedad + isocianato:temperatura,
+               data = df4)
+print(summary(modelo4r))
+cat("R2 =", round(summary(modelo4r)$r.squared, 4), "\n")
+```
+
+```{r ej4-diagnosticos}
+op <- par(mfrow = c(1, 2))
+qqnorm(residuals(modelo4r), main = "Q-Q residuales - espuma")
+qqline(residuals(modelo4r))
+plot(fitted(modelo4r), residuals(modelo4r),
+     xlab = "Ajustados", ylab = "Residuales",
+     main = "Residuales vs. ajustados")
+abline(h = 0, lty = 2)
+par(op)
+print(shapiro.test(residuals(modelo4r)))
+
+comb4 <- data.frame(
+    isocianato  = c(1, 1,-1,-1),
+    poliol      = c(-1,-1,-1,-1),
+    temperatura = c(-1,-1, 1, 1),
+    humedad     = c( 1,-1, 1,-1)
+)
+comb4$pred <- predict(modelo4r, comb4)
+cat("\nPredicciones en combinaciones extremas:\n")
+print(comb4)
+```

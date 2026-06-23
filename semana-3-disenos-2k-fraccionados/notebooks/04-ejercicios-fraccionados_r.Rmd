@@ -1,0 +1,278 @@
+---
+title: "04 · Ejercicios — Diseños Fraccionados 2^{k-p}"
+subtitle: "Semana 3 — Diseños 2^k y fraccionados"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    theme: flatly
+    highlight: tango
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE,
+                      fig.width = 10, fig.height = 5)
+options(scipen = 5, digits = 4)
+```
+
+**Objetivos**
+
+- Construir la estructura de alias para diseños $2^{k-p}$ y verificar la resolución.
+- Estimar efectos en fracciones de 8 y 16 corridas usando la gráfica normal.
+- Identificar factores activos en experimentos de cribado.
+- Analizar estrategias de fold-over y proyección.
+
+> Teoría: [../teoria/03-factoriales-fraccionados.md](../teoria/03-factoriales-fraccionados.md)
+> Equivalente en Python: [04-ejercicios-fraccionados_py.ipynb](04-ejercicios-fraccionados_py.ipynb)
+
+---
+
+## Ejercicio 1 · Helicóptero de papel ($2^{5-2}$, Resolución III)
+
+8 corridas, 5 factores. Generadores: $D=AB$, $E=AC$.
+
+Relación de definición: $I = ABD = ACE = BCDE$ — **Resolución III**.
+
+Cadenas de alias clave:
+$$[A] = A + BD + CE, \quad [B] = B + AD + CDE, \quad [C] = C + AE + BDE$$
+
+| Factor | $-1$ | $+1$ |
+|--------|------|------|
+| largo_ala (A) | corto | largo |
+| ancho_ala (B) | angosto | ancho |
+| largo_cuerpo (C) | corto | largo |
+| tipo_papel (D=AB) | bond | cartulina |
+| clip (E=AC) | sin clip | con clip |
+
+### 1.1 Los datos y verificación del diseño
+
+```{r ej1-datos}
+df1 <- read.csv('../datos/papel-helicoptero-frac.csv')
+print(df1)
+
+cat("\nVerificación D=AB:", all(df1$tipo_papel == df1$largo_ala * df1$ancho_ala), "\n")
+cat("Verificación E=AC:", all(df1$clip == df1$largo_ala * df1$largo_cuerpo), "\n")
+```
+
+### 1.2 Estimación de efectos
+
+```{r ej1-efectos}
+modelo1 <- lm(tiempo_vuelo ~ largo_ala + ancho_ala + largo_cuerpo + tipo_papel + clip,
+              data = df1)
+efectos1 <- coef(modelo1)[-1] * 2
+names(efectos1) <- c("A","B","C","D","E")
+cat("Efectos estimados (s) — confundidos con 2FIs en Res. III:\n")
+print(round(efectos1, 3))
+```
+
+### 1.3 Gráfica normal de efectos
+
+```{r ej1-daniel}
+eff1 <- sort(efectos1)
+n1   <- length(eff1)
+z1   <- qnorm((seq_len(n1) - 0.5) / n1)
+
+plot(z1, eff1, pch = 16, col = "steelblue", cex = 1.6,
+     xlab = "Cuantiles normales", ylab = "Efecto estimado (s)",
+     main = "Gráfica normal — Helicóptero de papel")
+abline(h = 0, lty = 2, col = "gray")
+text(z1, eff1, names(eff1), pos = 4, cex = 1.1)
+grid()
+```
+
+**Interpretación:** A (largo_ala) y B (ancho_ala) son activos. Dado que el diseño es
+Resolución III, estos estimados están confundidos: $[A]=A+BD+CE$. Para desconfundir
+se requeriría un fold-over.
+
+---
+
+## Ejercicio 2 · Cribado proceso químico ($2^{6-2}$, Resolución IV)
+
+16 corridas, 6 factores. Generadores: $E=ABC$, $F=BCD$.
+
+Relación de definición: $I = ABCE = BCDF = ADEF$ — **Resolución IV**.
+
+Con Resolución IV los **efectos principales son limpios de 2FIs**. Las 2FIs están
+aliadas entre sí: $[AB]=AB+CF$, $[AC]=AC+BF$, etc.
+
+### 2.1 Los datos y verificación
+
+```{r ej2-datos}
+df2 <- read.csv('../datos/proceso-quimico-frac.csv')
+cat("Diseño 2^{6-2} — 16 corridas:\n")
+print(df2)
+
+cat("\nVerificación E=ABC:", all(df2$E == df2$A * df2$B * df2$C), "\n")
+cat("Verificación F=BCD:", all(df2$F == df2$B * df2$C * df2$D), "\n")
+```
+
+### 2.2 Efectos principales
+
+```{r ej2-efectos}
+modelo2 <- lm(rendimiento ~ A + B + C + D + E + F, data = df2)
+efectos2 <- coef(modelo2)[-1] * 2
+cat("Efectos principales estimados (%):\n")
+print(round(efectos2, 2))
+cat("R2 solo efectos principales:", round(summary(modelo2)$r.squared, 4), "\n")
+```
+
+### 2.3 Gráfica normal
+
+```{r ej2-daniel}
+eff2 <- sort(efectos2)
+n2   <- length(eff2)
+z2   <- qnorm((seq_len(n2) - 0.5) / n2)
+
+plot(z2, eff2, pch = 16, col = "darkgreen", cex = 1.6,
+     xlab = "Cuantiles normales", ylab = "Efecto estimado (%)",
+     main = "Gráfica normal — Proceso químico (6 factores, 16 corridas)")
+abline(h = 0, lty = 2, col = "gray")
+text(z2, eff2, names(eff2), pos = 4, cex = 1.1)
+grid()
+```
+
+### 2.4 Modelo reducido
+
+```{r ej2-reducido}
+modelo2r <- lm(rendimiento ~ A + C + D, data = df2)
+print(summary(modelo2r))
+cat("\nNOTA: Con Res. IV, 2FIs como AC y CD están aliadas entre sí.\n")
+cat("Si se sospecha interacción, hacer fold-over para desconfundir.\n")
+```
+
+---
+
+## Ejercicio 3 · Tratamiento de agua ($2^{4-1}$, Resolución IV)
+
+8 corridas, 4 factores. Generador: $D=ABC$ ($I=ABCD$, **Resolución IV**).
+
+Estructura de alias:
+$$[A]=A+BCD, \quad [B]=B+ACD, \quad [C]=C+ABD, \quad [D]=D+ABC$$
+$$[AB]=AB+CD, \quad [AC]=AC+BD, \quad [AD]=AD+BC$$
+
+| Factor | $-1$ | $+1$ |
+|--------|------|------|
+| pH (A) | 6.5 | 8.0 |
+| temperatura (B) | 10 °C | 25 °C |
+| tiempo_contacto (C) | 15 min | 30 min |
+| dosis_cloro (D=ABC) | 1 mg/L | 3 mg/L |
+
+### 3.1 Los datos
+
+```{r ej3-datos}
+df3 <- read.csv('../datos/tratamiento-agua-frac.csv')
+print(df3)
+cat("\nVerificación D=ABC:", all(df3$dosis_cloro == df3$pH * df3$temperatura * df3$tiempo_contacto), "\n")
+```
+
+### 3.2 Estimación de efectos y gráfica
+
+```{r ej3-efectos}
+modelo3 <- lm(turbidez ~ pH + temperatura + tiempo_contacto + dosis_cloro, data = df3)
+efectos3 <- coef(modelo3)[-1] * 2
+names(efectos3) <- c("A(pH)","B(temp)","C(tiempo)","D(cloro)")
+cat("Efectos principales estimados (NTU):\n")
+print(round(sort(efectos3), 3))
+```
+
+```{r ej3-daniel}
+eff3 <- sort(efectos3)
+n3   <- length(eff3)
+z3   <- qnorm((seq_len(n3) - 0.5) / n3)
+
+plot(z3, eff3, pch = 16, col = "navy", cex = 1.8,
+     xlab = "Cuantiles normales", ylab = "Efecto (NTU)",
+     main = "Gráfica normal — Tratamiento de agua")
+abline(h = 0, lty = 2, col = "gray")
+text(z3, eff3, names(eff3), pos = 4, cex = 1.0)
+grid()
+```
+
+**Interpretación:** D (dosis de cloro) tiene el efecto más grande y negativo: aumentar
+la dosis reduce la turbidez. B (temperatura) tiene efecto positivo moderado.
+
+```{r ej3-aliases}
+cat("Aliases 2FIs en I=ABCD:\n")
+print(data.frame(estimado = c("AB","AC","AD"), aliasado = c("CD","BD","BC")))
+cat("\nPara separar AB de CD: fold-over (16 corridas = 2^4 completo).\n")
+
+opt3 <- data.frame(pH = 1, temperatura = -1, tiempo_contacto = 0, dosis_cloro = 1)
+cat("\nPredicción (pH=+1, temp=-1, DC=+1):", predict(modelo3, opt3), "NTU\n")
+```
+
+---
+
+## Ejercicio 4 · Biofermentación ($2^{5-1}$, Resolución V)
+
+16 corridas, 5 factores. Generador: $E=ABCD$ ($I=ABCDE$, **Resolución V**).
+
+Con Resolución V todos los **efectos principales y las 2FIs son estimables sin confusión**
+con efectos de orden bajo.
+
+| Factor | $-1$ | $+1$ |
+|--------|------|------|
+| pH (A) | 6.0 | 7.5 |
+| temperatura (B) | 28 °C | 37 °C |
+| oxigeno (C) | 20 % | 40 % |
+| sustrato (D) | 10 g/L | 20 g/L |
+| agitacion (E=ABCD) | 100 rpm | 200 rpm |
+
+### 4.1 Los datos
+
+```{r ej4-datos}
+df4 <- read.csv('../datos/biofermentacion-frac.csv')
+cat("Diseño 2^{5-1} Res. V —", nrow(df4), "corridas\n")
+print(df4)
+
+cat("\nVerificación E=ABCD:",
+    all(df4$agitacion == df4$pH * df4$temperatura * df4$oxigeno * df4$sustrato), "\n")
+```
+
+### 4.2 Efectos principales y 2FIs
+
+```{r ej4-efectos}
+modelo4 <- lm(enzima ~ (pH + temperatura + oxigeno + sustrato + agitacion)^2, data = df4)
+efectos4 <- coef(modelo4)[-1] * 2
+nombres4 <- c("A","B","C","D","E","AB","AC","AD","AE","BC","BD","BE","CD","CE","DE")
+names(efectos4) <- nombres4
+cat("Efectos (U/mL — por magnitud):\n")
+print(round(sort(abs(efectos4), decreasing = TRUE), 2))
+```
+
+### 4.3 Gráfica normal de efectos
+
+```{r ej4-daniel}
+eff4 <- sort(efectos4)
+n4   <- length(eff4)
+z4   <- qnorm((seq_len(n4) - 0.5) / n4)
+
+plot(z4, eff4, pch = 16, col = "purple", cex = 1.2,
+     xlab = "Cuantiles normales", ylab = "Efecto estimado (U/mL)",
+     main = "Gráfica normal de efectos — Biofermentación (Res. V, 16 corridas)")
+abline(h = 0, lty = 2, col = "gray")
+text(z4, eff4, names(eff4), pos = 4, cex = 0.9)
+grid()
+```
+
+### 4.4 Modelo reducido
+
+```{r ej4-reducido}
+modelo4r <- lm(enzima ~ pH + temperatura + sustrato + pH:temperatura, data = df4)
+print(summary(modelo4r))
+cat("R2 =", round(summary(modelo4r)$r.squared, 4), "\n")
+```
+
+```{r ej4-diagnosticos}
+op <- par(mfrow = c(1, 2))
+qqnorm(residuals(modelo4r), main = "Q-Q residuales - biofermentación")
+qqline(residuals(modelo4r))
+plot(fitted(modelo4r), residuals(modelo4r),
+     xlab = "Ajustados (U/mL)", ylab = "Residuales",
+     main = "Residuales vs. ajustados")
+abline(h = 0, lty = 2)
+par(op)
+print(shapiro.test(residuals(modelo4r)))
+
+cat("\nProyección: un 2^{5-1} Res. V se proyecta en cualquier conjunto de 4 factores\n")
+cat("como un factorial completo 2^4 — sin necesidad de corridas adicionales.\n")
+```
