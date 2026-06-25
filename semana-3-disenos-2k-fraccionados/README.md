@@ -1,9 +1,10 @@
-# Semana 3 — Diseños 2^k y fraccionados (10 h)
+# Semana 3 — Diseños $2^k$, fraccionados y $3^k$ (10 h)
 
 ## Objetivos
 
-Diseñar y analizar experimentos factoriales a dos niveles, incluyendo réplica única,
-bloqueo con confusión y fracciones para screening de muchos factores.
+Diseñar y analizar experimentos factoriales a dos y tres niveles, incluyendo réplica
+única, bloqueo con confusión, fracciones para screening de muchos factores, y detección
+de curvatura mediante diseños $3^k$.
 
 ## Contenidos
 
@@ -11,6 +12,7 @@ bloqueo con confusión y fracciones para screening de muchos factores.
 - Diseños $2^k$: cálculo de efectos, gráficos de probabilidad normal, réplica única.
 - Bloqueo y confusión (confounding).
 - Factoriales fraccionados $2^{k-p}$: resolución, estructura de alias.
+- Diseños $3^k$: contrastes lineal/cuadrático, matriz de contrastes ortogonales, confusión módulo 3.
 
 ### Opcional
 - Screening con diseños de Plackett-Burman.
@@ -26,6 +28,7 @@ bloqueo con confusión y fracciones para screening de muchos factores.
 | 02 | [`teoria/02-bloqueo-confusion.md`](teoria/02-bloqueo-confusion.md) | Bloqueo y confusión (confounding) |
 | 03 | [`teoria/03-factoriales-fraccionados.md`](teoria/03-factoriales-fraccionados.md) | Factoriales fraccionados $2^{k-p}$: resolución y alias |
 | 04 🔵 | [`teoria/04-screening-plackett-burman-taguchi.md`](teoria/04-screening-plackett-burman-taguchi.md) | Opcional: Plackett-Burman y Taguchi |
+| 05 | [`teoria/05-disenos-3k.md`](teoria/05-disenos-3k.md) | Diseños $3^k$: contrastes L/Q, confusión y comparación con $2^k$ |
 
 ### Notebooks (doble versión R + Python)
 
