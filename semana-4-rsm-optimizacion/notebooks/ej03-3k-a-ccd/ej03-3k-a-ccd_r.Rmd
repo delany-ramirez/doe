@@ -1,0 +1,113 @@
+---
+title: "Ejercicio 3 — Transición de $3^2$ a CCD"
+output: html_document
+---
+
+## Objetivo
+
+Partir del $3^2$ con curvatura detectada, aumentarlo con puntos axiales y centros para
+construir un CCD, y comparar las estimaciones del modelo de segundo orden.
+
+**Factores:** Tiempo de curado ($A$: 20/30/40 min) y Temperatura ($B$: 140/160/180 °C)
+**Respuesta:** Adherencia de la pintura (N/mm²)
+
+```{r setup, message=FALSE}
+library(dplyr)
+library(ggplot2)
+library(rsm)
+
+df32 <- read.csv("../../datos/calidad-pintura-3k.csv")
+cat("Diseño 3^2 (9 corridas):\n")
+print(df32[, c("x1","x2","adherencia")])
+```
+
+## 1. Modelo cuadrático sobre el $3^2$
+
+```{r modelo-32}
+modelo_32 <- lm(adherencia ~ x1 + x2 + I(x1^2) + I(x2^2) + x1:x2, data = df32)
+summary(modelo_32)
+```
+
+## 2. Construir el CCD
+
+```{r ccd}
+alpha <- sqrt(2)
+set.seed(42)
+
+axiales <- data.frame(
+  x1        = c( alpha, -alpha,     0,     0),
+  x2        = c(     0,     0,  alpha, -alpha),
+  adherencia = c(  67.5,  44.8,  71.2,  55.3)
+)
+centros_extra <- data.frame(
+  x1        = c(0, 0, 0),
+  x2        = c(0, 0, 0),
+  adherencia = c(78.5, 80.1, 79.0)
+)
+
+df_ccd <- bind_rows(df32[, c("x1","x2","adherencia")], axiales, centros_extra)
+cat(sprintf("CCD completo: %d corridas\n", nrow(df_ccd)))
+print(df_ccd)
+```
+
+## 3. Modelo cuadrático sobre el CCD
+
+```{r modelo-ccd}
+modelo_ccd <- lm(adherencia ~ x1 + x2 + I(x1^2) + I(x2^2) + x1:x2, data = df_ccd)
+summary(modelo_ccd)
+anova(modelo_ccd)
+```
+
+## 4. Comparación de estimaciones
+
+```{r comparacion}
+terminos <- c("(Intercept)", "x1", "x2", "I(x1^2)", "I(x2^2)", "x1:x2")
+nombres  <- c("β₀","β₁","β₂","β₁₁","β₂₂","β₁₂")
+
+comp <- data.frame(
+  Termino     = nombres,
+  Est_32      = round(coef(modelo_32)[terminos], 4),
+  SE_32       = round(sqrt(diag(vcov(modelo_32)))[terminos], 4),
+  Est_CCD     = round(coef(modelo_ccd)[terminos], 4),
+  SE_CCD      = round(sqrt(diag(vcov(modelo_ccd)))[terminos], 4)
+)
+comp$Reduccion_SE_pct <- round((comp$SE_32 - comp$SE_CCD) / comp$SE_32 * 100, 1)
+print(comp, row.names = FALSE)
+```
+
+## 5. Localizar el óptimo
+
+```{r optimo}
+modelo_rsm <- rsm(adherencia ~ SO(x1, x2), data = df_ccd)
+cat("Punto estacionario:\n")
+print(canonical(modelo_rsm))
+
+# Convertir a unidades reales: x1: c=30, Δ=10; x2: c=160, Δ=20
+xs <- canonical(modelo_rsm)$xs
+cat(sprintf("Óptimo real: Tiempo = %.1f min, Temp = %.1f °C\n",
+            30 + xs["x1"] * 10, 160 + xs["x2"] * 20))
+```
+
+## 6. Visualización
+
+```{r figura, fig.width=12, fig.height=5}
+options(repr.plot.width = 12, repr.plot.height = 5)
+par(mfrow = c(1, 2))
+
+modelo_rsm_32  <- rsm(adherencia ~ SO(x1, x2), data = df32)
+modelo_rsm_ccd <- rsm(adherencia ~ SO(x1, x2), data = df_ccd)
+
+contour(modelo_rsm_32,  ~ x1 + x2, image = TRUE,
+        col.image = terrain.colors(20), main = "3² (9 corridas)",
+        xlab = "x1 (Tiempo)", ylab = "x2 (Temperatura)")
+contour(modelo_rsm_ccd, ~ x1 + x2, image = TRUE,
+        col.image = terrain.colors(20), main = "CCD (16 corridas)",
+        xlab = "x1 (Tiempo)", ylab = "x2 (Temperatura)")
+```
+
+## 7. Conclusión
+
+- El **CCD** extiende el $3^2$ con puntos axiales ($\alpha=\sqrt{2}$) y centros,
+  reduciendo los errores estándar de los coeficientes cuadráticos.
+- La rotatibilidad del CCD garantiza estimaciones igualmente precisas en todas las direcciones.
+- El óptimo se localiza mediante el punto estacionario del modelo de 2° orden.

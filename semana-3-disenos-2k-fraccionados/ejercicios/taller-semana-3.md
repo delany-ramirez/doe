@@ -107,27 +107,3 @@ $\alpha = 0.05$?
 
 ---
 
-## Problema 5 — Diseño fraccionado $2^{4-1}$ *(25 min)*
-
-Un nuevo experimento dispone de solo **8 corridas**. Se decide usar una **media fracción**
-$2^{4-1}$.
-
-**a)** Elige el **generador** $I = ABCD$. Construye la matriz de diseño de 8 corridas
-(fracción principal: donde $ABCD = +1$). ¿Qué 8 corridas de la tabla original
-corresponden a esta fracción?
-
-**b)** Escribe la **estructura de alias** completa. ¿Con qué interacción está confundido
-cada efecto principal?
-
-**c)** ¿Cuál es la **resolución** de este diseño? Explica qué implicación tiene para
-estimar efectos principales y de dos factores.
-
-**d)** Dada la evidencia del Problema 3 de que $AC$ y $AD$ son activas, ¿podría el
-diseño $2^{4-1}_{IV}$ con $I = ABCD$ estimar $AC$ **sin confusión** con otra
-interacción de dos factores? ¿Qué opciones tendrías si necesitaras estimar $AC$ y $AD$
-de forma limpia?
-
----
-
-> Solución en [`taller-semana-3-sol.md`](taller-semana-3-sol.md). Intenta resolverlo antes
-> de consultarla.

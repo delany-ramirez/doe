@@ -1,0 +1,103 @@
+---
+title: "Ejercicio 2 — Ascenso por máxima pendiente desde un $3^2$"
+output: html_document
+---
+
+## Objetivo
+
+Usar el $3^2$ para ajustar un modelo de primer orden y calcular la trayectoria de ascenso
+por máxima pendiente.
+
+**Factores:** pH ($A$: 5.5/6.5/7.5) y Temperatura ($B$: 28/32/36 °C)
+**Respuesta:** Biomasa (g/L)
+
+```{r setup, message=FALSE}
+library(dplyr)
+library(ggplot2)
+library(rsm)
+
+df <- read.csv("../../datos/fermentacion-3k.csv")
+print(df)
+```
+
+## 1. Verificación de curvatura
+
+```{r curvatura}
+modelo_2o <- lm(biomasa ~ x1 + x2 + I(x1^2) + I(x2^2) + x1:x2, data = df)
+anova_2o <- anova(modelo_2o)
+print(anova_2o)
+
+p_A2 <- anova_2o["I(x1^2)", "Pr(>F)"]
+p_B2 <- anova_2o["I(x2^2)", "Pr(>F)"]
+cat(sprintf("p-curvatura A: %.4f\n", p_A2))
+cat(sprintf("p-curvatura B: %.4f\n", p_B2))
+```
+
+## 2. Modelo de primer orden
+
+```{r primer-orden}
+modelo_1o <- lm(biomasa ~ x1 + x2, data = df)
+summary(modelo_1o)
+
+b0 <- coef(modelo_1o)["(Intercept)"]
+b1 <- coef(modelo_1o)["x1"]
+b2 <- coef(modelo_1o)["x2"]
+cat(sprintf("β₀=%.3f  β₁(pH)=%.3f  β₂(T)=%.3f\n", b0, b1, b2))
+```
+
+## 3. Trayectoria de ascenso
+
+```{r trayectoria}
+# Gradiente normalizado
+grad <- c(b1, b2)
+grad_norm <- grad / sqrt(sum(grad^2))
+
+# Escalas reales: pH centro=6.5 Δ=1; T centro=32 Δ=4
+centro_real <- c(6.5, 32.0)
+delta_real  <- c(1.0,  4.0)
+paso_base   <- 0.3
+
+cat("Trayectoria de ascenso por máxima pendiente:\n")
+traj <- do.call(rbind, lapply(0:5, function(s) {
+  x_cod  <- grad_norm * s * paso_base
+  x_real <- centro_real + x_cod * delta_real
+  y_hat  <- b0 + b1 * x_cod[1] + b2 * x_cod[2]
+  data.frame(paso = s,
+             x1_cod = round(x_cod[1], 3),
+             x2_cod = round(x_cod[2], 3),
+             pH_real = round(x_real[1], 2),
+             T_real  = round(x_real[2], 2),
+             y_hat   = round(y_hat, 2))
+}))
+print(traj)
+```
+
+## 4. Visualización
+
+```{r figura, fig.width=7, fig.height=6}
+grilla <- expand.grid(x1 = seq(-1.5, 2.5, by = 0.05),
+                      x2 = seq(-1.5, 2.5, by = 0.05))
+grilla$y_hat <- b0 + b1 * grilla$x1 + b2 * grilla$x2
+
+ggplot(grilla, aes(x = x1, y = x2, z = y_hat)) +
+  geom_contour_filled(bins = 15) +
+  geom_point(data = df, aes(x = x1, y = x2), inherit.aes = FALSE,
+             color = "black", size = 3) +
+  geom_path(data = traj, aes(x = x1_cod, y = x2_cod), inherit.aes = FALSE,
+            color = "red", linewidth = 1.2) +
+  geom_point(data = traj, aes(x = x1_cod, y = x2_cod), inherit.aes = FALSE,
+             color = "red", shape = 21, fill = "white", size = 3) +
+  labs(x = expression(x[1] ~ "(pH)"),
+       y = expression(x[2] ~ "(Temperatura)"),
+       title = "Ascenso por máxima pendiente desde un 3²",
+       fill = "Biomasa (g/L)") +
+  theme_minimal(base_size = 13)
+```
+
+## 5. Conclusión
+
+- Con el $3^2$ ajustamos el modelo de primer orden; el gradiente $(\hat\beta_1, \hat\beta_2)$
+  indica la dirección de mayor incremento de la biomasa.
+- La trayectoria se ejecuta experimentalmente: se corre un ensayo en cada punto hasta que la
+  respuesta deja de aumentar.
+- En ese punto se centra un nuevo diseño ($3^2$ o CCD) para ajustar el modelo de 2° orden.

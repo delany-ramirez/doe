@@ -1,0 +1,127 @@
+---
+title: "Ejercicio 5 — Comparación $3^3$ vs. Box-Behnken"
+output: html_document
+---
+
+## Objetivo
+
+Ajustar el modelo RSM de segundo orden sobre el $3^3$ (27 corridas) y un Box-Behnken (15
+corridas) y comparar: coeficientes, errores estándar y localización del óptimo.
+
+**Factores:** Temperatura ($A$), Tiempo ($B$), Concentración ($C$)
+**Respuesta:** Pureza del fármaco (%)
+
+```{r setup, message=FALSE}
+library(dplyr)
+library(ggplot2)
+library(rsm)
+
+df3k <- read.csv("../../datos/pureza-farmaco-3k.csv")
+cat(sprintf("3^3: %d corridas\n", nrow(df3k)))
+print(head(df3k))
+```
+
+## 1. Modelo de 2° orden sobre el $3^3$
+
+```{r modelo-3k}
+formula <- pureza ~ x1 + x2 + x3 + I(x1^2) + I(x2^2) + I(x3^2) + x1:x2 + x1:x3 + x2:x3
+modelo3k <- lm(formula, data = df3k)
+print(summary(modelo3k))
+```
+
+## 2. Construir el Box-Behnken y ajustar modelo
+
+```{r bbd}
+set.seed(7)
+# Estructura BBD para k=3: 12 corridas de borde + 3 centros
+bbd_bordes <- data.frame(
+  x1 = c(-1,-1, 1, 1, -1,-1, 1, 1,  0, 0, 0, 0),
+  x2 = c(-1, 1,-1, 1,  0, 0, 0, 0, -1,-1, 1, 1),
+  x3 = c( 0, 0, 0, 0, -1, 1,-1, 1, -1, 1,-1, 1)
+)
+bbd <- bind_rows(bbd_bordes, data.frame(x1=c(0,0,0), x2=c(0,0,0), x3=c(0,0,0)))
+
+# Generar respuestas a partir del modelo 3^3 + ruido
+bbd$pureza <- predict(modelo3k, newdata=bbd) + rnorm(nrow(bbd), 0, 0.5)
+cat(sprintf("BBD: %d corridas\n", nrow(bbd)))
+
+modelo_bbd <- lm(formula, data = bbd)
+print(summary(modelo_bbd))
+```
+
+## 3. Tabla comparativa de coeficientes
+
+```{r comparacion}
+terminos <- c("(Intercept)","x1","x2","x3",
+              "I(x1^2)","I(x2^2)","I(x3^2)","x1:x2","x1:x3","x2:x3")
+nombres  <- c("β₀","β₁","β₂","β₃","β₁₁","β₂₂","β₃₃","β₁₂","β₁₃","β₂₃")
+
+comp <- data.frame(
+  Termino   = nombres,
+  Est_3k    = round(coef(modelo3k)[terminos], 3),
+  SE_3k     = round(sqrt(diag(vcov(modelo3k)))[terminos], 3),
+  Est_BBD   = round(coef(modelo_bbd)[terminos], 3),
+  SE_BBD    = round(sqrt(diag(vcov(modelo_bbd)))[terminos], 3)
+)
+comp$Delta_SE_pct <- round((comp$SE_BBD - comp$SE_3k) / comp$SE_3k * 100, 1)
+print(comp, row.names = FALSE)
+```
+
+## 4. Análisis canónico comparativo
+
+```{r canonico}
+rsm3k  <- rsm(pureza ~ SO(x1, x2, x3), data = df3k)
+rsm_bbd <- rsm(pureza ~ SO(x1, x2, x3), data = bbd)
+
+cat("=== Punto estacionario 3^3 ===\n")
+can3k <- canonical(rsm3k); print(can3k)
+
+cat("\n=== Punto estacionario BBD ===\n")
+can_bbd <- canonical(rsm_bbd); print(can_bbd)
+
+centros_r <- c(75, 45, 3)
+deltas_r  <- c(15, 15, 1)
+cat(sprintf("\nÓptimo real 3^3: T=%.1f°C, t=%.1f min, C=%.2f%%\n",
+            centros_r[1] + can3k$xs['x1']*deltas_r[1],
+            centros_r[2] + can3k$xs['x2']*deltas_r[2],
+            centros_r[3] + can3k$xs['x3']*deltas_r[3]))
+cat(sprintf("Óptimo real BBD: T=%.1f°C, t=%.1f min, C=%.2f%%\n",
+            centros_r[1] + can_bbd$xs['x1']*deltas_r[1],
+            centros_r[2] + can_bbd$xs['x2']*deltas_r[2],
+            centros_r[3] + can_bbd$xs['x3']*deltas_r[3]))
+```
+
+## 5. Visualización comparativa (par x1×x2, x3 en óptimo)
+
+```{r figura, fig.width=12, fig.height=5}
+options(repr.plot.width=12, repr.plot.height=5)
+par(mfrow=c(1,2))
+contour(rsm3k,  x1~x2, at=list(x3=can3k$xs['x3']),  image=TRUE,
+        col.image=terrain.colors(20),
+        main="3^3 (27 corridas)",  xlab="x1 (Temp)", ylab="x2 (Tiempo)")
+contour(rsm_bbd, x1~x2, at=list(x3=can_bbd$xs['x3']), image=TRUE,
+        col.image=terrain.colors(20),
+        main="BBD (15 corridas)", xlab="x1 (Temp)", ylab="x2 (Tiempo)")
+```
+
+## 6. Tabla de eficiencia
+
+```{r eficiencia}
+eff <- data.frame(
+  Criterio = c("Corridas","GL para error","Rotatibilidad",
+               "Niveles","Puntos de esquina"),
+  `3^3`  = c("27","17","No","3 (−1,0,+1)","Sí (8 vértices)"),
+  BBD    = c("15"," 5","Aproximada","3 (−1,0,+1)","No"),
+  check.names = FALSE
+)
+print(eff, row.names = FALSE)
+```
+
+## 7. Conclusión
+
+- El **BBD** estima los mismos 10 parámetros que el $3^3$ con **44% menos corridas**.
+- El $3^3$ tiene más GL para el error (mejor estimación de $\sigma^2$) pero usa 27 ensayos.
+- El BBD evita los vértices del cubo, útil cuando las condiciones extremas combinadas son
+  difíciles o peligrosas.
+- Usa $3^k$ cuando interesa la **estructura ortogonal L/Q completa**; usa BBD/CCD cuando
+  el objetivo es la **optimización RSM** con el mínimo de recursos.

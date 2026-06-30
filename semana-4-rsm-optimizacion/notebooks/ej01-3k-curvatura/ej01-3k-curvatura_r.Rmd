@@ -1,0 +1,87 @@
+---
+title: "Ejercicio 1 — Detección de curvatura: $3^2$ vs. $2^2$"
+output: html_document
+---
+
+## Objetivo
+
+Comparar la capacidad de un $2^2$ y un $3^2$ para detectar curvatura, ajustar modelos
+lineal y cuadrático, y diagnosticar falta de ajuste.
+
+**Factores:** Temperatura ($A$: 60/75/90 °C) y Concentración ($B$: 10/15/20 g/L)
+**Respuesta:** Rendimiento de reacción (%)
+
+```{r setup, message=FALSE}
+library(dplyr)
+library(ggplot2)
+library(rsm)
+
+df <- read.csv("../../datos/rendimiento-reaccion-3k.csv")
+print(df)
+```
+
+## 1. Subconjunto $2^2$: solo los 4 vértices
+
+```{r modelo-lineal}
+df22 <- df %>% filter(x1 %in% c(-1, 1), x2 %in% c(-1, 1))
+cat("Corridas del 2^2:\n")
+print(df22[, c("x1", "x2", "rendimiento")])
+
+modelo_lineal <- lm(rendimiento ~ x1 + x2 + x1:x2, data = df22)
+summary(modelo_lineal)
+```
+
+## 2. Modelo cuadrático con el $3^2$ completo
+
+```{r modelo-cuad}
+modelo_cuad <- lm(rendimiento ~ x1 + x2 + I(x1^2) + I(x2^2) + x1:x2, data = df)
+summary(modelo_cuad)
+anova(modelo_cuad)
+```
+
+## 3. Diagnóstico de falta de ajuste
+
+```{r curvatura}
+pred_lineal_centro <- predict(modelo_lineal,
+                              newdata = data.frame(x1 = 0, x2 = 0))
+y_centro_obs <- df %>%
+  filter(x1 == 0, x2 == 0) %>%
+  pull(rendimiento)
+
+cat(sprintf("Predicción lineal en (0,0): %.2f\n", pred_lineal_centro))
+cat(sprintf("Observación real en (0,0):  %.2f\n", y_centro_obs))
+cat(sprintf("Diferencia (curvatura):     %.2f\n", y_centro_obs - pred_lineal_centro))
+
+coefs <- coef(modelo_cuad)
+cat(sprintf("\nβ₁₁ (curvatura A): %.3f\n", coefs["I(x1^2)"]))
+cat(sprintf("β₂₂ (curvatura B): %.3f\n", coefs["I(x2^2)"]))
+```
+
+## 4. Visualización con `rsm`
+
+```{r superficie, fig.width=10, fig.height=4}
+df_cod <- coded.data(df,
+                     x1 ~ (A_real - 75) / 15,
+                     x2 ~ (B_real - 15) / 5)
+# Si no se dispone de A_real/B_real en el CSV, usamos x1/x2 directamente
+modelo_rsm <- rsm(rendimiento ~ SO(x1, x2), data = df)
+
+par(mfrow = c(1, 2))
+contour(modelo_rsm, ~ x1 + x2,
+        image = TRUE, col.image = terrain.colors(20),
+        xlab = "x1 (Temperatura)", ylab = "x2 (Concentración)",
+        main = "Curvas de nivel")
+persp(modelo_rsm, ~ x1 + x2,
+      col = terrain.colors(20), contour = "colors",
+      theta = -30, phi = 25,
+      main = "Superficie de respuesta")
+```
+
+## 5. Conclusión
+
+- El **$2^2$** no puede detectar curvatura: solo estima efectos lineales.
+- El **$3^2$** revela curvatura significativa en $B$ ($\hat\beta_{22} < 0$), indicando un
+  máximo en la zona central de la concentración.
+- La diferencia entre la predicción lineal y la observación en el punto central es evidencia
+  directa de curvatura.
+- Siguiente paso recomendado: **CCD** o **Box-Behnken** para localizar el óptimo.

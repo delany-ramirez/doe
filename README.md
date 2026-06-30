@@ -10,8 +10,8 @@ distribuidas en 4 fines de semana (~10 h cada uno). Material en español, con te
 |--------|------|---------|
 | 1 | Fundamentos y un solo factor | [`semana-1-fundamentos/`](semana-1-fundamentos/) |
 | 2 | Bloqueo y factoriales | [`semana-2-bloqueo-factoriales/`](semana-2-bloqueo-factoriales/) |
-| 3 | Diseños $2^k$, fraccionados y $3^k$ | [`semana-3-disenos-2k-fraccionados/`](semana-3-disenos-2k-fraccionados/) |
-| 4 | Optimización y cierre (RSM) | [`semana-4-rsm-optimizacion/`](semana-4-rsm-optimizacion/) |
+| 3 | Diseños $2^k$ y fraccionados | [`semana-3-disenos-2k-fraccionados/`](semana-3-disenos-2k-fraccionados/) |
+| 4 | Diseños $3^k$, RSM y cierre | [`semana-4-rsm-optimizacion/`](semana-4-rsm-optimizacion/) |
 | — | Proyecto integrador | [`proyecto-integrador/`](proyecto-integrador/) |
 | — | Recursos generales | [`recursos/`](recursos/) |
 

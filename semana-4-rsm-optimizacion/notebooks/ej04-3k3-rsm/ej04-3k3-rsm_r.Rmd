@@ -1,0 +1,109 @@
+---
+title: "Ejercicio 4 — Diseño $3^3$ completo y análisis RSM"
+output: html_document
+---
+
+## Objetivo
+
+Analizar un $3^3$ completo (27 corridas) con tabla de grados de libertad por componentes
+L/Q, ajustar modelo de segundo orden y localizar el óptimo con análisis canónico.
+
+**Factores:** Agua ($A$: 140/170/200 kg/m³), Cemento ($B$: 300/350/400), Arena ($C$: 600/700/800)
+**Respuesta:** Resistencia a compresión (MPa)
+
+```{r setup, message=FALSE}
+library(dplyr)
+library(ggplot2)
+library(rsm)
+
+df <- read.csv("../../datos/resistencia-concreto-3k3.csv")
+cat(sprintf("Corridas: %d (3^3 = 27 %s)\n", nrow(df), ifelse(nrow(df)==27,"✓","✗")))
+print(head(df))
+```
+
+## 1. ANOVA — modelo de 2° orden
+
+```{r anova}
+modelo <- lm(resistencia ~ x1+x2+x3+I(x1^2)+I(x2^2)+I(x3^2)+x1:x2+x1:x3+x2:x3,
+             data = df)
+print(anova(modelo))
+cat(sprintf("GL total: %d (esperado 26)\n", sum(anova(modelo)$Df)))
+```
+
+## 2. Descomposición L/Q por factor
+
+```{r contrastes-lq}
+contrastes_lq <- function(df, factor, resp = "resistencia") {
+  med <- tapply(df[[resp]], df[[factor]], mean)
+  y_neg1 <- med["-1"]; y_0 <- med["0"]; y_pos1 <- med["1"]
+  n  <- table(df[[factor]])[1]
+  CL <- y_pos1 - y_neg1
+  CQ <- y_neg1 - 2*y_0 + y_pos1
+  c(Factor=factor, C_L=round(CL,3), C_Q=round(CQ,3),
+    SC_L=round(CL^2/(n*2),3), SC_Q=round(CQ^2/(n*6),3))
+}
+
+tab <- as.data.frame(t(sapply(c("x1","x2","x3"), contrastes_lq, df=df)))
+rownames(tab) <- c("A (agua)", "B (cemento)", "C (arena)")
+print(tab)
+```
+
+## 3. Resumen del modelo
+
+```{r resumen}
+print(summary(modelo))
+```
+
+## 4. Análisis canónico con `rsm`
+
+```{r canonico}
+modelo_rsm <- rsm(resistencia ~ SO(x1, x2, x3), data = df)
+cat("\nPunto estacionario:\n")
+can <- canonical(modelo_rsm)
+print(can)
+
+xs <- can$xs
+centros_r <- c(170, 350, 700)
+deltas_r  <- c( 30,  50, 100)
+x_real <- centros_r + xs * deltas_r
+cat(sprintf("\nÓptimo real: agua=%.0f, cemento=%.0f, arena=%.0f kg/m³\n",
+            x_real[1], x_real[2], x_real[3]))
+cat(sprintf("Resistencia estimada: %.2f MPa\n",
+            predict(modelo_rsm, newdata=as.data.frame(t(xs)))))
+
+eigs <- can$eigen$values
+tipo <- if(all(eigs<0)) "MÁXIMO" else if(all(eigs>0)) "MÍNIMO" else "SILLA"
+cat("Tipo de punto estacionario:", tipo, "\n")
+```
+
+## 5. Curvas de nivel (fijando el tercer factor en su óptimo)
+
+```{r contornos, fig.width=14, fig.height=5}
+options(repr.plot.width=14, repr.plot.height=5)
+par(mfrow=c(1,3))
+
+contour(modelo_rsm, x1 ~ x2,
+        at = list(x3 = xs["x3"]),
+        image = TRUE, col.image = terrain.colors(20),
+        main = sprintf("x3 fijado en %.2f", xs["x3"]),
+        xlab = "x1 (Agua)", ylab = "x2 (Cemento)")
+
+contour(modelo_rsm, x1 ~ x3,
+        at = list(x2 = xs["x2"]),
+        image = TRUE, col.image = terrain.colors(20),
+        main = sprintf("x2 fijado en %.2f", xs["x2"]),
+        xlab = "x1 (Agua)", ylab = "x3 (Arena)")
+
+contour(modelo_rsm, x2 ~ x3,
+        at = list(x1 = xs["x1"]),
+        image = TRUE, col.image = terrain.colors(20),
+        main = sprintf("x1 fijado en %.2f", xs["x1"]),
+        xlab = "x2 (Cemento)", ylab = "x3 (Arena)")
+```
+
+## 6. Conclusión
+
+- El $3^3$ estima todos los efectos principales (L y Q) e interacciones de dos factores.
+- La función `rsm::canonical()` realiza el análisis canónico automáticamente.
+- Los eigenvalores de la matriz $B$ determinan el tipo de punto estacionario.
+- Para 3+ factores, un CCD es más eficiente (15–17 vs. 27 corridas) con similar poder.

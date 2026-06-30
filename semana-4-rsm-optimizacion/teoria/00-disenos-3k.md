@@ -297,7 +297,120 @@ ajustar superficies de respuesta cuadráticas.
 
 ---
 
-## 10. Ajuste en R
+## 10. Ejemplos numéricos
+
+### 10.1 Cálculo de contrastes en un $3^2$ — Rendimiento de reacción
+
+**Contexto.** Se estudia el rendimiento (%) de una reacción química en función de la
+temperatura ($A$: 60, 75, 90 °C) y la concentración del catalizador ($B$: 10, 15, 20 g/L).
+
+**Datos observados** (un diseño $3^2$ sin réplica):
+
+| Corrida | $A$ (cod.) | $B$ (cod.) | Rendimiento $y$ |
+|:-------:|:----------:|:----------:|:---------------:|
+| 00 | $-1$ | $-1$ | 52.3 |
+| 01 | $-1$ | $\phantom{+}0$ | 61.8 |
+| 02 | $-1$ | $+1$ | 58.4 |
+| 10 | $\phantom{+}0$ | $-1$ | 63.5 |
+| 11 | $\phantom{+}0$ | $\phantom{+}0$ | 74.2 |
+| 12 | $\phantom{+}0$ | $+1$ | 70.6 |
+| 20 | $+1$ | $-1$ | 68.9 |
+| 21 | $+1$ | $\phantom{+}0$ | 82.1 |
+| 22 | $+1$ | $+1$ | 77.4 |
+
+**Medias marginales por nivel del factor $A$:**
+
+$$
+\bar{y}_{A=-1} = \frac{52.3+61.8+58.4}{3} = 57.50 \qquad
+\bar{y}_{A=0} = \frac{63.5+74.2+70.6}{3} = 69.43 \qquad
+\bar{y}_{A=+1} = \frac{68.9+82.1+77.4}{3} = 76.13
+$$
+
+**Contrastes para el factor $A$** (usando medias marginales, $n=3$ réplicas "implícitas" = promedio sobre B):
+
+$$
+C_L^A = \bar{y}_{A=+1} - \bar{y}_{A=-1} = 76.13 - 57.50 = 18.63
+$$
+
+$$
+C_Q^A = \bar{y}_{A=-1} - 2\bar{y}_{A=0} + \bar{y}_{A=+1} = 57.50 - 2(69.43) + 76.13 = -5.23
+$$
+
+**Sumas de cuadrados** (con $n_{\text{nivel}}=3$ observaciones por nivel y divisores $\sum c_i^2=2$ y $6$):
+
+$$
+SC_{A_L} = \frac{(C_L^A)^2}{n_{\text{nivel}}\cdot 2} = \frac{(18.63)^2}{3 \times 2} = \frac{347.08}{6} = 57.85
+$$
+
+$$
+SC_{A_Q} = \frac{(C_Q^A)^2}{n_{\text{nivel}}\cdot 6} = \frac{(-5.23)^2}{3 \times 6} = \frac{27.35}{18} = 1.52
+$$
+
+**Interpretación:** $SC_{A_L} \gg SC_{A_Q}$, lo que indica que el efecto de la temperatura
+es predominantemente **lineal** sobre el rendimiento, con curvatura pequeña pero detectable.
+
+**Medias marginales para $B$:**
+
+$$
+\bar{y}_{B=-1} = 61.57 \qquad \bar{y}_{B=0} = 72.70 \qquad \bar{y}_{B=+1} = 68.80
+$$
+
+$$
+C_L^B = 68.80 - 61.57 = 7.23 \qquad C_Q^B = 61.57 - 2(72.70) + 68.80 = -15.03
+$$
+
+$$
+SC_{B_L} = \frac{(7.23)^2}{6} = 8.72 \qquad SC_{B_Q} = \frac{(-15.03)^2}{18} = 12.55
+$$
+
+**Interpretación:** Para la concentración ($B$), el componente cuadrático ($SC_{B_Q}=12.55$) es
+mayor que el lineal ($SC_{B_L}=8.72$), lo que revela una **curvatura real**: el rendimiento
+alcanza un máximo cerca del nivel central ($B=0$, es decir 15 g/L) y decrece en los extremos.
+
+> **Verificación de ortogonalidad.** Los vectores de coeficientes $(-1,0,+1)$ y $(+1,-2,+1)$
+> satisfacen $(-1)(+1)+(0)(-2)+(+1)(+1) = -1+0+1 = 0$. ✓
+
+---
+
+### 10.2 El $3^2$ como puente al RSM
+
+El ejemplo anterior ilustra el **flujo de análisis** que conecta los tres tipos de diseño:
+
+```
+Screening (2^k / 2^{k-p})
+   ↓  Identificar factores activos
+Caracterización (3^k)
+   ↓  Detectar curvatura, estimar L y Q
+Optimización (CCD / Box-Behnken)
+   ↓  Ajustar modelo completo de 2° orden, localizar óptimo
+```
+
+**¿Cuándo pasar del $3^k$ al RSM?** Usa la siguiente regla de decisión:
+
+| Resultado del $3^k$ | Siguiente paso |
+|---------------------|----------------|
+| Solo componentes $L$ significativos (sin curvatura) | Ascenso por máxima pendiente (Semana 4, § RSM 1er orden) |
+| Algún componente $Q$ significativo | Añadir puntos axiales y centros → CCD; ajustar modelo de 2° orden completo |
+| Interacción $A_L B_L$ significativa además de $Q$ | CCD con ambos factores; vigilar la forma del punto estacionario |
+
+**Modelo cuadrático ajustado** sobre los datos del ejemplo anterior con `lm()` en R:
+
+```r
+diseno <- data.frame(
+  x1 = c(-1,-1,-1, 0,0,0, 1,1,1),
+  x2 = c(-1, 0, 1,-1,0,1,-1,0,1),
+  y  = c(52.3,61.8,58.4, 63.5,74.2,70.6, 68.9,82.1,77.4)
+)
+modelo <- lm(y ~ x1 + x2 + I(x1^2) + I(x2^2) + x1:x2, data = diseno)
+```
+
+Los coeficientes estimados confirmarán $\hat\beta_{22} < 0$ (curvatura negativa en $B$),
+señalando que existe un máximo en la dirección de $B$ y que un CCD permitirá localizarlo
+con precisión.
+
+---
+
+## 11. Ajuste en R
 
 ```r
 # Diseño 3^2 con n=1 réplica
