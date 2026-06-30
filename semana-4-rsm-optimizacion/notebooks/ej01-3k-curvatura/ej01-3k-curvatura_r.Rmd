@@ -60,10 +60,6 @@ cat(sprintf("β₂₂ (curvatura B): %.3f\n", coefs["I(x2^2)"]))
 ## 4. Visualización con `rsm`
 
 ```{r superficie, fig.width=10, fig.height=4}
-df_cod <- coded.data(df,
-                     x1 ~ (A_real - 75) / 15,
-                     x2 ~ (B_real - 15) / 5)
-# Si no se dispone de A_real/B_real en el CSV, usamos x1/x2 directamente
 modelo_rsm <- rsm(rendimiento ~ SO(x1, x2), data = df)
 
 par(mfrow = c(1, 2))

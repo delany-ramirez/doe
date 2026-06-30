@@ -105,10 +105,19 @@ donde $n$ es el número de réplicas por celda. La suma de cuadrados de cada com
 calcula con la fórmula estándar de contraste:
 
 $$
-SC_L = \frac{C_L^2}{n \cdot \sum c_i^2} = \frac{C_L^2}{2n} ,
+SC_L = \frac{n \cdot C_L^2}{\sum c_i^2} = \frac{n \cdot C_L^2}{2} ,
 \qquad
-SC_Q = \frac{C_Q^2}{n \cdot \sum c_i^2} = \frac{C_Q^2}{6n} .
+SC_Q = \frac{n \cdot C_Q^2}{\sum c_i^2} = \frac{n \cdot C_Q^2}{6} ,
 $$
+
+donde $n$ es el número de observaciones por nivel (en un $3^k$ sin réplica, $n$ = número
+de combinaciones de los otros factores: $n = 3^{k-1}$).
+
+> **Nota sobre la fórmula.** El contraste $C_L$ se calcula aquí de **medias marginales**
+> ($C_L = \bar{y}_{+1} - \bar{y}_{-1}$). Si en cambio se usan totales por nivel
+> ($T_i = \sum_{j} y_{ij}$), entonces $C_L^{\text{tot}} = T_{+1} - T_{-1}$ y la fórmula
+> es $SC_L = (C_L^{\text{tot}})^2 / (n_{\text{réplicas}} \cdot \sum c_i^2)$, que produce
+> el mismo resultado.
 
 > **Verificación de ortogonalidad.** Los dos vectores de coeficientes
 > $(-1,\,0,\,+1)$ y $(+1,\,-2,\,+1)$ son ortogonales: su producto interno es cero.
@@ -339,11 +348,11 @@ $$
 **Sumas de cuadrados** (con $n_{\text{nivel}}=3$ observaciones por nivel y divisores $\sum c_i^2=2$ y $6$):
 
 $$
-SC_{A_L} = \frac{(C_L^A)^2}{n_{\text{nivel}}\cdot 2} = \frac{(18.63)^2}{3 \times 2} = \frac{347.08}{6} = 57.85
+SC_{A_L} = \frac{n_{\text{nivel}} \cdot (C_L^A)^2}{2} = \frac{3 \times (18.63)^2}{2} = \frac{3 \times 347.08}{2} = 520.6
 $$
 
 $$
-SC_{A_Q} = \frac{(C_Q^A)^2}{n_{\text{nivel}}\cdot 6} = \frac{(-5.23)^2}{3 \times 6} = \frac{27.35}{18} = 1.52
+SC_{A_Q} = \frac{n_{\text{nivel}} \cdot (C_Q^A)^2}{6} = \frac{3 \times (5.23)^2}{6} = \frac{3 \times 27.35}{6} = 13.7
 $$
 
 **Interpretación:** $SC_{A_L} \gg SC_{A_Q}$, lo que indica que el efecto de la temperatura
@@ -360,11 +369,11 @@ C_L^B = 68.80 - 61.57 = 7.23 \qquad C_Q^B = 61.57 - 2(72.70) + 68.80 = -15.03
 $$
 
 $$
-SC_{B_L} = \frac{(7.23)^2}{6} = 8.72 \qquad SC_{B_Q} = \frac{(-15.03)^2}{18} = 12.55
+SC_{B_L} = \frac{n_{\text{nivel}} \cdot (7.23)^2}{2} = \frac{3 \times 52.27}{2} = 78.4 \qquad SC_{B_Q} = \frac{n_{\text{nivel}} \cdot (15.03)^2}{6} = \frac{3 \times 225.9}{6} = 113.0
 $$
 
-**Interpretación:** Para la concentración ($B$), el componente cuadrático ($SC_{B_Q}=12.55$) es
-mayor que el lineal ($SC_{B_L}=8.72$), lo que revela una **curvatura real**: el rendimiento
+**Interpretación:** Para la concentración ($B$), el componente cuadrático ($SC_{B_Q}=113.0$) es
+mayor que el lineal ($SC_{B_L}=78.4$), lo que revela una **curvatura real**: el rendimiento
 alcanza un máximo cerca del nivel central ($B=0$, es decir 15 g/L) y decrece en los extremos.
 
 > **Verificación de ortogonalidad.** Los vectores de coeficientes $(-1,0,+1)$ y $(+1,-2,+1)$

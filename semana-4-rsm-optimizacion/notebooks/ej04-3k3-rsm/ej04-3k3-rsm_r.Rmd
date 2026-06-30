@@ -39,8 +39,9 @@ contrastes_lq <- function(df, factor, resp = "resistencia") {
   n  <- table(df[[factor]])[1]
   CL <- y_pos1 - y_neg1
   CQ <- y_neg1 - 2*y_0 + y_pos1
+  # Con C calculado de medias: SC = n_nivel * C_medias² / Σc²  (Σc²=2 para L, 6 para Q)
   c(Factor=factor, C_L=round(CL,3), C_Q=round(CQ,3),
-    SC_L=round(CL^2/(n*2),3), SC_Q=round(CQ^2/(n*6),3))
+    SC_L=round(n*CL^2/2,3), SC_Q=round(n*CQ^2/6,3))
 }
 
 tab <- as.data.frame(t(sapply(c("x1","x2","x3"), contrastes_lq, df=df)))

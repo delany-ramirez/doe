@@ -42,6 +42,10 @@ bbd_bordes <- data.frame(
 bbd <- bind_rows(bbd_bordes, data.frame(x1=c(0,0,0), x2=c(0,0,0), x3=c(0,0,0)))
 
 # Generar respuestas a partir del modelo 3^3 + ruido
+# NOTA PEDAGÓGICA: las respuestas del BBD se simulan desde el modelo 3^3 + ruido
+# (no son datos experimentales independientes). El objetivo es comparar la ESTRUCTURA
+# de diseño (varianza de estimación, nº de corridas), no obtener estimaciones empíricamente
+# distintas. En un estudio real, ambos diseños se ejecutarían de forma independiente.
 bbd$pureza <- predict(modelo3k, newdata=bbd) + rnorm(nrow(bbd), 0, 0.5)
 cat(sprintf("BBD: %d corridas\n", nrow(bbd)))
 
@@ -119,7 +123,7 @@ print(eff, row.names = FALSE)
 
 ## 7. Conclusión
 
-- El **BBD** estima los mismos 10 parámetros que el $3^3$ con **44% menos corridas**.
+- El **BBD** estima los mismos 10 parámetros que el $3^3$ con **44% menos corridas** (el $3^3$ necesita 80% más corridas que el BBD).
 - El $3^3$ tiene más GL para el error (mejor estimación de $\sigma^2$) pero usa 27 ensayos.
 - El BBD evita los vértices del cubo, útil cuando las condiciones extremas combinadas son
   difíciles o peligrosas.

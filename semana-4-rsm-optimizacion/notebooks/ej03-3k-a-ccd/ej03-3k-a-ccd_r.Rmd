@@ -107,7 +107,9 @@ contour(modelo_rsm_ccd, ~ x1 + x2, image = TRUE,
 
 ## 7. Conclusión
 
-- El **CCD** extiende el $3^2$ con puntos axiales ($\alpha=\sqrt{2}$) y centros,
-  reduciendo los errores estándar de los coeficientes cuadráticos.
-- La rotatibilidad del CCD garantiza estimaciones igualmente precisas en todas las direcciones.
+- Este ejercicio construye un **diseño 3² aumentado**: el 3² original (9 corridas) se extiende
+  con puntos axiales ($\alpha=\sqrt{2}$) y centros adicionales, reduciendo los errores estándar
+  de los coeficientes cuadráticos.
+- **Nota:** un CCD rotable estándar parte solo de los 4 vértices del factorial $2^2$; incluir
+  los puntos de borde del $3^2$ produce un diseño aumentado no estándar con 16 puntos.
 - El óptimo se localiza mediante el punto estacionario del modelo de 2° orden.
