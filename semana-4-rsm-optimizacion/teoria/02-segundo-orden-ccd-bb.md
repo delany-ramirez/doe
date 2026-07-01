@@ -95,6 +95,22 @@ $\mathbf{B}$:
 Las gráficas de **contornos** y de **superficie** complementan el análisis y comunican el
 resultado visualmente.
 
+### Verificación de extrapolación
+
+Antes de adoptar $\mathbf{x}_s$ como condición óptima, verifica que esté dentro de la
+**región experimental** ($|x_s^{(i)}| \le 1$ para cada factor):
+
+- **Todos** $|x_s^{(i)}| \le 1$: el punto está dentro del cubo; el modelo interpoló y la
+  predicción es fiable.
+- **Algún** $|x_s^{(i)}| > 1$: el punto está **fuera** de la región validada; el modelo
+  extrapola y la predicción puede ser inexacta. El paso correcto es **centrar un nuevo
+  diseño** (CCD o BBD) alrededor de $\mathbf{x}_s$ y confirmar experimentalmente antes de
+  adoptar esas condiciones.
+
+> Si el óptimo queda muy lejos del cubo ($|x_s^{(i)}| \gg 1$), suele indicar que la
+> superficie modelada no tiene un máximo real en esa dirección, o que el modelo es poco
+> fiable allí. Considera ampliar el rango experimental antes de continuar.
+
 ## 6. Optimización de múltiples respuestas
 
 Cuando hay **varias respuestas** que optimizar simultáneamente (p. ej., maximizar

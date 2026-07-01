@@ -413,9 +413,11 @@ diseno <- data.frame(
 modelo <- lm(y ~ x1 + x2 + I(x1^2) + I(x2^2) + x1:x2, data = diseno)
 ```
 
-Los coeficientes estimados confirmarán $\hat\beta_{22} < 0$ (curvatura negativa en $B$),
-señalando que existe un máximo en la dirección de $B$ y que un CCD permitirá localizarlo
-con precisión.
+Los coeficientes estimados confirmarán $\hat\beta_{11} < 0$ y $\hat\beta_{22} < 0$
+(curvatura negativa en ambos factores, más pronunciada en $B$ según los valores de
+$SC_{A_Q}$ y $SC_{B_Q}$). La presencia de componentes $Q$ significativos señala que la
+superficie tiene curvatura en esta región y que un CCD permitirá localizar el óptimo con
+precisión.
 
 ---
 
