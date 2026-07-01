@@ -10,7 +10,14 @@
       "Bash(grep -vE \"Aviso|package|built under|^ *[0-9]+:|^In |^$\")",
       "Bash(Rscript ../../_gen/_rmd01.R)",
       "Bash(grep -vE \"Aviso|package|built|^ *[0-9]+:|^In |^$\")",
-      "Bash(Rscript ../../_gen/_rmd02.R)"
+      "Bash(Rscript ../../_gen/_rmd02.R)",
+      "Bash(jupyter --version)",
+      "PowerShell(jupyter *)",
+      "PowerShell(Get-Command *)",
+      "PowerShell(conda run *)",
+      "Bash(jupyter nbconvert *)",
+      "PowerShell(python -m jupyter --version 2>&1; python -c \"import jupyter_client; print\\('ok'\\)\" 2>&1)",
+      "PowerShell(conda env *)"
     ]
   }
 }
