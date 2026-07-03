@@ -1,0 +1,135 @@
+---
+title: "Ejercicio 6 — Contrastes ortogonales L/Q completos en un $3^2$"
+output: html_document
+---
+
+## Objetivo
+
+Reproducir con código la tabla de contrastes ortogonales de la teoría (L, Q e
+interacción bilineal), verificar su ortogonalidad, y agrupar (pool) los componentes de
+orden superior no significativos como estimador del error, ya que el $3^2$ sin réplicas
+es un diseño saturado.
+
+**Factores:** Presión de sellado ($A$: 2.0/2.5/3.0 bar), Temperatura de sellado
+($B$: 120/140/160 °C)
+**Respuesta:** Resistencia del sellado (N/15mm)
+
+```{r setup, message=FALSE}
+library(dplyr)
+
+df <- read.csv("../../datos/sellado-empaques-3k.csv")
+df <- df[order(df$x1, df$x2), ]
+cat(sprintf("Corridas: %d (3^2 = 9 sin réplica)\n", nrow(df)))
+print(df)
+```
+
+## 1. Matriz de contrastes ortogonales
+
+```{r contrastes}
+AL <- c(-1,-1,-1, 0,0,0, 1,1,1)
+AQ <- c( 1, 1, 1,-2,-2,-2, 1,1,1)
+BL <- c(-1, 0, 1,-1,0,1,-1,0,1)
+BQ <- c( 1,-2, 1, 1,-2,1, 1,-2,1)
+
+contrastes <- list(A_L=AL, A_Q=AQ, B_L=BL, B_Q=BQ,
+                    A_LB_L=AL*BL, A_LB_Q=AL*BQ, A_QB_L=AQ*BL, A_QB_Q=AQ*BQ)
+
+nombres <- names(contrastes)
+ortogonal <- TRUE
+for (i in 1:(length(nombres)-1)) {
+  for (j in (i+1):length(nombres)) {
+    dp <- sum(contrastes[[nombres[i]]] * contrastes[[nombres[j]]])
+    if (dp != 0) {
+      ortogonal <- FALSE
+      cat(sprintf("NO ortogonal: %s x %s = %d\n", nombres[i], nombres[j], dp))
+    }
+  }
+}
+cat("Todos los pares de contrastes son ortogonales:", ortogonal, "\n")
+```
+
+## 2. Suma de cuadrados por contraste
+
+Con $n=1$ observación por celda, $SC = C^2/(n\sum c_i^2)$, donde $C=\sum_i c_i y_i$
+(teoría §4).
+
+```{r sc}
+y <- df$resistencia
+n <- 1
+
+tabla <- data.frame(Efecto=character(), C=double(), sum_c2=double(), SC=double(),
+                     stringsAsFactors = FALSE)
+for (nombre in nombres) {
+  cvec <- contrastes[[nombre]]
+  C <- sum(cvec * y)
+  sum_c2 <- sum(cvec^2)
+  SC <- C^2 / (n * sum_c2)
+  tabla <- rbind(tabla, data.frame(Efecto=nombre, C=round(C,3), sum_c2=sum_c2, SC=round(SC,4)))
+}
+print(tabla)
+
+SST <- sum((y - mean(y))^2)
+cat(sprintf("\nSuma de las 8 SC: %.4f\n", sum(tabla$SC)))
+cat(sprintf("SST (8 gl, corregida): %.4f\n", SST))
+```
+
+## 3. Comparación con `anova(lm())`
+
+```{r anova}
+modelo <- lm(resistencia ~ x1 + x2 + I(x1^2) + I(x2^2) + x1:x2, data = df)
+print(anova(modelo))
+cat("\nCompare sum_sq con SC de A_L, B_L, A_Q, B_Q y A_LB_L de la sección anterior: son idénticas.\n")
+```
+
+## 4. Agrupar componentes de orden superior como error
+
+El $3^2$ sin réplicas tiene 8 corridas independientes (tras remover la media) para 8
+posibles efectos: no queda ningún grado de libertad para el error si se estiman los
+ocho. Se asume que las interacciones de orden más alto ($A_QB_Q$, $A_LB_Q$, $A_QB_L$)
+son despreciables y se agrupan como estimador del error puro (3 gl).
+
+```{r pool}
+rownames(tabla) <- tabla$Efecto
+pool <- c("A_QB_Q", "A_LB_Q", "A_QB_L")
+gl_error <- length(pool)
+SCE <- sum(tabla[pool, "SC"])
+MSE <- SCE / gl_error
+cat(sprintf("SC agrupada (error): %.4f con %d gl -> MSE=%.4f\n", SCE, gl_error, MSE))
+
+for (efecto in c("A_L", "A_Q", "B_L", "B_Q", "A_LB_L")) {
+  SC <- tabla[efecto, "SC"]
+  Fval <- SC / MSE
+  p <- 1 - pf(Fval, 1, gl_error)
+  cat(sprintf("%-8s SC=%.4f  F=%.3f  p=%.4f\n", efecto, SC, Fval, p))
+}
+```
+
+## 5. Visualización de la interacción $A_LB_L$
+
+```{r interaccion, fig.width=6, fig.height=5}
+plot(NULL, xlim=c(-1,1), ylim=range(df$resistencia),
+     xlab="x2 (Temperatura de sellado)", ylab="Resistencia (N/15mm)",
+     main="Interacción A_LB_L: líneas no paralelas")
+colores <- c("blue", "black", "red")
+niveles <- sort(unique(df$x1))
+for (i in seq_along(niveles)) {
+  sub <- df[df$x1 == niveles[i], ]
+  sub <- sub[order(sub$x2), ]
+  lines(sub$x2, sub$resistencia, type="o", col=colores[i], pch=19)
+}
+legend("topleft", legend=paste("x1 =", niveles), col=colores, lty=1, pch=19)
+```
+
+## 6. Conclusión
+
+- Los ocho contrastes ortogonales reparten exactamente la SST — es la misma
+  descomposición que hace `anova(lm())` con `I(x1^2)`, `I(x2^2)` y `x1:x2`, solo que aquí
+  se hizo explícita la maquinaria de contrastes de la teoría (§4).
+- Con un $3^2$ sin réplicas no hay grados de libertad "gratis" para el error: hay que
+  **agrupar** las componentes de interacción de orden más alto para poder construir
+  pruebas F.
+- En este proceso de sellado, tanto los efectos lineales ($A_L$, $B_L$) como la
+  curvatura ($A_Q$, $B_Q$) y la interacción bilineal ($A_LB_L$) son significativos: la
+  superficie tiene curvatura real en ambos factores y no es aditiva.
+- **Siguiente paso:** con curvatura e interacción confirmadas, se justifica un CCD (o el
+  $3^2$ aumentado del Ejercicio 3) para localizar el punto óptimo con precisión.

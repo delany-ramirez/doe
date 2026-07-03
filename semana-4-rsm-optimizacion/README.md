@@ -47,6 +47,9 @@ El enunciado, los datos y la rúbrica viven en [`../proyecto-integrador/`](../pr
 | `notebooks/ej03-3k-a-ccd/` | Transición de 3^2 a CCD (puntos axiales + centros) | py · r · Rmd |
 | `notebooks/ej04-3k3-rsm/` | Diseño 3^3 completo y superficie de respuesta | py · r · Rmd |
 | `notebooks/ej05-3k-vs-bbd/` | Comparación 3^k vs. Box-Behnken (eficiencia y varianza) | py · r · Rmd |
+| `notebooks/ej06-3k-contrastes-lq/` | Contrastes ortogonales L/Q completos en un 3^2 (con interacción) | py · r · Rmd |
+| `notebooks/ej07-3k-bloques/` | Bloqueo y confusión en un 3^2 (aritmética modular) | py · r · Rmd |
+| `notebooks/ej08-3k-fraccion/` | Diseño 3^(3-1) fraccionado (generador módulo 3) | py · r · Rmd |
 
 ### Datos
 
@@ -55,6 +58,9 @@ El enunciado, los datos y la rúbrica viven en [`../proyecto-integrador/`](../pr
 | [`datos/proceso-primer-orden.csv`](datos/proceso-primer-orden.csv) | $2^2$ + 3 centros, región lineal (ascenso) | `x1,x2` (cod.), `y` |
 | [`datos/rsm-ccd.csv`](datos/rsm-ccd.csv) | CCD rotable 2 factores; rendimiento | `x1,x2` (cod.), `rendimiento` |
 | [`datos/pureza-ccd.csv`](datos/pureza-ccd.csv) | CCD del ejercicio 01; pureza | `x1,x2` (cod.), `pureza` |
+| [`datos/sellado-empaques-3k.csv`](datos/sellado-empaques-3k.csv) | $3^2$ del ejercicio 06; sellado de empaques flexibles | `x1,x2` (cod.), `resistencia` |
+| [`datos/curado-adhesivo-3k-bloques.csv`](datos/curado-adhesivo-3k-bloques.csv) | $3^2$ del ejercicio 07 en 3 bloques (lotes); curado de adhesivo | `x1,x2,bloque` (cod.), `resistencia` |
+| [`datos/biodiesel-3k3-fraccion.csv`](datos/biodiesel-3k3-fraccion.csv) | $3^{3-1}$ fraccionado del ejercicio 08; producción de biodiésel | `x1,x2,x3` (cod.), `conversion` |
 
 ### Ejercicios
 

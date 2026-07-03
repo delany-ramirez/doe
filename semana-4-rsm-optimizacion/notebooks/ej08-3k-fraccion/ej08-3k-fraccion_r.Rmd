@@ -1,0 +1,114 @@
+---
+title: "Ejercicio 8 — Diseño $3^{3-1}$ fraccionado (generador módulo 3)"
+output: html_document
+---
+
+## Objetivo
+
+Construir una tercera fracción de un $3^3$ (9 corridas en vez de 27) usando el generador
+$x_3 = x_1+x_2 \pmod 3$ (teoría §8), ajustar el modelo de segundo orden sin
+interacciones, localizar el óptimo, y entender qué se sacrifica (la capacidad de estimar
+interacciones) a cambio del ahorro de corridas.
+
+**Factores:** Temperatura de reacción ($A$: 50/60/70 °C), Relación molar
+metanol:aceite ($B$: 4/6/8), Concentración de catalizador KOH ($C$: 0.5/1.0/1.5 %)
+**Respuesta:** Conversión a biodiésel (%)
+
+```{r setup}
+df <- read.csv("../../datos/biodiesel-3k3-fraccion.csv")
+cat(sprintf("Corridas: %d  (fracción 3^(3-1) = 9;  3^3 completo = 27)\n", nrow(df)))
+print(df)
+```
+
+## 1. Verificación del generador de la fracción
+
+$$x_3^{\text{Yates}} = \bigl(x_1^{\text{Yates}} + x_2^{\text{Yates}}\bigr) \bmod 3$$
+
+```{r verificacion}
+x1_yates <- df$x1 + 1
+x2_yates <- df$x2 + 1
+x3_generado <- (x1_yates + x2_yates) %% 3 - 1
+
+verificacion <- data.frame(x1=df$x1, x2=df$x2, x3_generado=x3_generado, x3_dataset=df$x3)
+print(verificacion)
+cat(sprintf("\n¿x3 coincide con el generador C=A+B mod 3? %s\n", all(x3_generado == df$x3)))
+
+cat("\nOrtogonalidad de las columnas del diseño (deben dar 0):\n")
+cat(sprintf("  x1 . x2 = %d\n", sum(df$x1*df$x2)))
+cat(sprintf("  x1 . x3 = %d\n", sum(df$x1*df$x3)))
+cat(sprintf("  x2 . x3 = %d\n", sum(df$x2*df$x3)))
+```
+
+## 2. Modelo de segundo orden (solo efectos principales L/Q)
+
+Con 9 corridas solo alcanzan 2 gl de error para un modelo con 7 parámetros. Los términos
+de interacción quedan aliados (confundidos) con los efectos principales por el propio
+generador y no se incluyen en el modelo.
+
+```{r modelo}
+modelo <- lm(conversion ~ x1 + x2 + x3 + I(x1^2) + I(x2^2) + I(x3^2), data = df)
+print(summary(modelo))
+print(anova(modelo))
+```
+
+## 3. Punto óptimo (matriz B diagonal, sin interacciones)
+
+```{r optimo}
+p <- coef(modelo)
+b_vec <- c(p["x1"], p["x2"], p["x3"])
+B_mat <- diag(c(p["I(x1^2)"], p["I(x2^2)"], p["I(x3^2)"]))
+x_s <- -solve(2*B_mat, b_vec)
+
+y_s <- predict(modelo, newdata = data.frame(x1=x_s[1], x2=x_s[2], x3=x_s[3]))
+
+centros_r <- c(60, 6, 1.0)
+deltas_r  <- c(10, 2, 0.5)
+x_real <- centros_r + x_s * deltas_r
+
+cat("Punto estacionario (codificado):", round(x_s, 3), "\n")
+cat(sprintf("Conversión estimada: %.2f %%\n", y_s))
+cat(sprintf("Óptimo real: temp=%.1f C, ratio=%.2f, catalizador=%.2f %%\n",
+            x_real[1], x_real[2], x_real[3]))
+cat("¿Fuera de la región experimental (|x|>1)?", any(abs(x_s) > 1), "\n")
+```
+
+## 4. Qué se sacrifica: el aliasing de las interacciones
+
+Con las 3 interacciones de dos factores el modelo tendría 10 parámetros para solo 9
+corridas: la matriz de diseño pierde rango.
+
+```{r aliasing}
+X_full <- model.matrix(~ x1+x2+x3+I(x1^2)+I(x2^2)+I(x3^2)+x1:x2+x1:x3+x2:x3, data=df)
+rango <- qr(X_full)$rank
+cat(sprintf("Modelo con interacciones: rango=%d, columnas=%d\n", rango, ncol(X_full)))
+cat("-> NO estimable: cada interacción está aliada con algún efecto principal por\n")
+cat("   construcción del generador x3 = x1+x2 (mod 3).\n")
+```
+
+## 5. Costo-beneficio: fracción vs. $3^3$ completo
+
+```{r resumen}
+resumen <- data.frame(
+  Criterio = c("Corridas", "Parametros estimables (2do orden)",
+               "GL de error", "Interacciones estimables"),
+  Fraccion_3_3_1 = c("9", "7 (sin interac.)", "2", "No"),
+  Completo_3_3   = c("27", "10 (con interac.)", "17", "Si")
+)
+print(resumen)
+cat("\nLa fracción cuesta 1/3 de las corridas del diseño completo, a costa de no poder\n")
+cat("estimar las interacciones de dos factores.\n")
+```
+
+## 6. Conclusión
+
+- El generador $x_3=x_1+x_2 \pmod 3$ produce una fracción ortogonal en $x_1,x_2,x_3$: los
+  efectos L/Q se estiman sin sesgo, igual que en el $3^3$ completo.
+- El ahorro (67% menos corridas) tiene un costo: las interacciones quedan aliadas con los
+  efectos principales y no son estimables; intentar ajustarlas produce una matriz de
+  diseño deficiente en rango.
+- El óptimo hallado (temperatura ≈ 63 °C, relación molar ≈ 7.0, catalizador ≈ 1.15 %)
+  cae dentro de la región experimental, por lo que la recomendación es una interpolación
+  válida — sujeta a que no haya interacciones relevantes.
+- **Regla práctica.** Usa un $3^{k-p}$ fraccionado solo en la etapa exploratoria, cuando
+  el screening previo ($2^{k-p}$) ya descartó interacciones importantes entre estos
+  factores; si existe duda razonable, corre el $3^k$ completo o un CCD/Box-Behnken.
